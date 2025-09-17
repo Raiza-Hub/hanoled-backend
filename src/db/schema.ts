@@ -137,7 +137,7 @@ export const classLevel = pgTable("class", {
   id: text("id").primaryKey(),
   memberId: text("member_id")
     .notNull()
-    .references(() => member.id), //i dont belive its necessary
+    .references(() => member.id), //i don't believe its necessary
   organizationId: text("organization_id")
     .notNull()
     .references(() => organization.id, { onDelete: "cascade" }),
@@ -207,12 +207,12 @@ export const usersRelations = relations(user, ({ many }) => ({
   invitationsSent: many(invitation),
 }));
 
-export const organisationRelations = relations(organization, ({ many }) => ({
+export const organizationRelations = relations(organization, ({ many }) => ({
   members: many(member),
   invitations: many(invitation),
   parents: many(parent),
-  subject: many(subject), //somthing
-  classLevel: many(classLevel), //something
+  subject: many(subject),
+  classLevel: many(classLevel),
   student: many(student),
 }));
 
@@ -240,7 +240,7 @@ export const schema = {
   student,
   studentRelations,
   memberRelations,
-  organisationRelations,
+  organizationRelations,
 };
 
 //added class, student, subject table

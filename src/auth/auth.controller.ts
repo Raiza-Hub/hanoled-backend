@@ -23,7 +23,7 @@ export const signUp = async (
 
     return res.status(201).json({
       success: true,
-      message: "Signed Up SucessFully",
+      message: "Signed Up Successfully",
     });
   } catch (err) {
     if (err instanceof APIError) {
@@ -49,7 +49,7 @@ export const signIn = async (
 
     return res
       .status(200)
-      .json({ sucess: true, message: "Signed In Successfully" });
+      .json({ success: true, message: "Signed In Successfully" });
   } catch (err) {
     if (err instanceof APIError) {
       console.log(err.message, err.status);

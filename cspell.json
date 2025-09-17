@@ -1,0 +1,17 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": ["typeorm", "drizzleorm", "resend", "hanoled"],
+  "ignorePaths": [
+    "node_modules",
+    "dist",
+    "build",
+    "migrations",
+    "tsconfig.json"
+  ],
+  "ignoreRegExpList": [
+    "/\\/\\/.*$/",
+    "/\\/\\*[\\s\\S]*?\\*\\//",
+    "/`[\\s\\S]*?`/"
+  ]
+}

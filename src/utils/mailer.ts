@@ -1,7 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
 import { Resend } from "resend";
-import { AppError } from "./appError";
 
 const resend = new Resend(process.env.RESEND_API_KEY as string);
 
