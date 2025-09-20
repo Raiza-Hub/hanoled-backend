@@ -3,20 +3,21 @@
   "version": "1.0.0",
   "description": "",
   "main": "app.ts",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon ./src/app.ts",
-    "build": "tsc ./src/app.ts",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
-    "lint": "eslint src --ext .ts",
-    "lint:fix": "eslint src --ext .ts --fix"
-  },
+"scripts": {
+  "dev": "tsx watch src/app.ts",       
+  "build": "tsc && tsc-alias",         
+  "start": "node dist/app.js",         
+  "db:generate": "drizzle-kit generate",
+  "db:migrate": "drizzle-kit migrate",
+  "db:push": "drizzle-kit push",
+  "lint": "eslint src --ext .ts",
+  "lint:fix": "eslint src --ext .ts --fix",
+  "test": "echo \"Error: no test specified\" && exit 1"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@types/express": "^5.0.3",
     "bcrypt": "^6.0.0",
@@ -57,6 +58,7 @@
     "eslint": "^9.35.0",
     "globals": "^16.4.0",
     "jiti": "^2.5.1",
+    "tsc-alias": "^1.8.16",
     "tsx": "^4.20.5",
     "typescript-eslint": "^8.44.0"
   }
