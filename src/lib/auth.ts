@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { customSession, organization } from "better-auth/plugins";
+import { customSession, openAPI, organization } from "better-auth/plugins";
 import { db } from "@/db/db.js";
 import { EmailOptions, sendEmail } from "@/utils/mailer.js";
 import UserService from "@/user/user.service.js";
@@ -60,6 +60,7 @@ export const auth = betterAuth({
         session,
       };
     }),
+    openAPI(),
   ],
   // session: {
   //   cookieCache: {
