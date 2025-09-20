@@ -1,11 +1,15 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { customSession, organization } from "better-auth/plugins";
-import { db } from "../db/db";
-import { admin, member, owner, parent } from "./validators/permissions";
-import { getUserRoles } from "../utils/getUserRoles";
-import { EmailOptions, sendEmail } from "../utils/mailer";
-import UserService from "../user/user.service";
+import { db } from "@/db/db.js";
+import { EmailOptions, sendEmail } from "@/utils/mailer.js";
+import UserService from "@/user/user.service.js";
+import { admin, member, owner, parent } from "./validators/permissions.js";
+import { getUserRoles } from "@/utils/getUserRoles.js";
+// import { admin, member, owner, parent } from "";
+// import { getUserRoles } from "../utils/getUserRoles";
+// import { EmailOptions, sendEmail } from "../utils/mailer";
+// import UserService from "../user/user.service";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
