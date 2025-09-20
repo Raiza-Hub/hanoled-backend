@@ -1,7 +1,7 @@
+import { db } from "@/db/db.js";
+import { member } from "@/db/schema.js";
 import { eq } from "drizzle-orm";
-import { db } from "../db/db";
-import { member } from "../db/schema";
-import { AppError } from "./appError";
+import { AppError } from "./appError.js";
 
 export const getUserRoles = async (userId: string) => {
   const memberUser = await db.query.member.findFirst({

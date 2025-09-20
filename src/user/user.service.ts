@@ -1,6 +1,7 @@
+import { db } from "@/db/db.js";
+import { user, type User,  } from "@/db/schema.js";
 import { eq } from "drizzle-orm";
-import { db } from "../db/db";
-import { User, user } from "../db/schema";
+
 
 class UserService {
   static async updateUser(id: string, data: Partial<User>) {

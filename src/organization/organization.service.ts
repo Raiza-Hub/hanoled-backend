@@ -1,6 +1,7 @@
+import { db } from "@/db/db.js";
+import { Member, organization } from "@/db/schema.js";
 import { eq, inArray } from "drizzle-orm";
-import { db } from "../db/db";
-import { Member, organization } from "../db/schema";
+
 
 class OrganizationService {
   static async getAllMemberOrganizations(memberships: Member | Member[]) {

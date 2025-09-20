@@ -1,9 +1,9 @@
+import MemberService from "@/member/member.service.js";
+import { getUserSession } from "@/utils/getSession.js";
 import { NextFunction, Request, Response } from "express";
-import { getUserSession } from "src/utils/getSession";
-import OrganizationService from "./organization.service";
-import MemberService from "src/member/member.service";
-import { AppError } from "src/utils/appError";
-import ParentService from "src/parent/parent.service";
+import OrganizationService from "./organization.service.js";
+import { AppError } from "@/utils/appError.js";
+import ParentService from "@/parent/parent.service.js";
 
 export const getOrganizations = async (
   req: Request,
@@ -13,7 +13,7 @@ export const getOrganizations = async (
   try {
     console.log("get organizations session");
 
-    const { user } = await getUserSession();
+    const { user } = await getUserSession(req);
 
     const memberships = await MemberService.getAllMembers(user.id);
 
@@ -38,7 +38,7 @@ export const getActiveOrganization = async (
 ) => {
   try {
     console.log("get active organization session");
-    const { user } = await getUserSession();
+    const { user } = await getUserSession(req);
 
     const userId = user.id;
 
@@ -66,7 +66,7 @@ export const getMember = async (
   try {
     console.log("get member session");
 
-    const { user } = await getUserSession();
+    const { user } = await getUserSession(req);
 
     const uniqueMember = await MemberService.getMember(user.id);
 
@@ -112,7 +112,7 @@ export const getRoleInOrganization = async (
   next: NextFunction
 ) => {
   try {
-    const { user } = await getUserSession();
+    const { user } = await getUserSession(req);
     const memberUser = await MemberService.getMember(user.id);
 
     if (!memberUser) {
@@ -131,7 +131,7 @@ export const getUserSchoolRoles = async (
   next: NextFunction
 ) => {
   try {
-    const { user } = await getUserSession();
+    const { user } = await getUserSession(req);
     const userId = user.id;
 
     const memberUser = await MemberService.getMember(userId);
