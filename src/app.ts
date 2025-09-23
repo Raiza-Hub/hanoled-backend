@@ -10,7 +10,7 @@ import { auth } from "./lib/auth.js";
 const app = express();
 const port = process.env.PORT;
 
-app.all("/api/auth/{*splat}", toNodeHandler(auth));
+
 
 app.use(
   cors({
@@ -19,6 +19,8 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
+
+app.all("/api/auth/{*splat}", toNodeHandler(auth));
 
 
 app.use(express.json());
