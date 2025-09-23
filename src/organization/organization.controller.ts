@@ -1,5 +1,4 @@
 import MemberService from "@/member/member.service.js";
-import { getUserSession } from "@/utils/getSession.js";
 import { NextFunction, Request, Response } from "express";
 import OrganizationService from "./organization.service.js";
 import { AppError } from "@/utils/appError.js";
@@ -13,7 +12,9 @@ export const getOrganizations = async (
   try {
     console.log("get organizations session");
 
-    const { user } = await getUserSession(req);
+    const user = req.user;
+
+    // const { user } = await getUserSession(req);
 
     const memberships = await MemberService.getAllMembers(user.id);
 
@@ -38,7 +39,8 @@ export const getActiveOrganization = async (
 ) => {
   try {
     console.log("get active organization session");
-    const { user } = await getUserSession(req);
+
+    const user = req.user;
 
     const userId = user.id;
 
@@ -66,7 +68,7 @@ export const getMember = async (
   try {
     console.log("get member session");
 
-    const { user } = await getUserSession(req);
+    const user = req.user;
 
     const uniqueMember = await MemberService.getMember(user.id);
 
@@ -112,7 +114,7 @@ export const getRoleInOrganization = async (
   next: NextFunction
 ) => {
   try {
-    const { user } = await getUserSession(req);
+    const user = req.user;
     const memberUser = await MemberService.getMember(user.id);
 
     if (!memberUser) {
@@ -131,7 +133,7 @@ export const getUserSchoolRoles = async (
   next: NextFunction
 ) => {
   try {
-    const { user } = await getUserSession(req);
+    const user = req.user;
     const userId = user.id;
 
     const memberUser = await MemberService.getMember(userId);

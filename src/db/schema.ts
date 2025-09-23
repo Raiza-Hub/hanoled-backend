@@ -123,25 +123,22 @@ export const parent = pgTable("parent", {
   createdAt: timestamp("created_at").notNull(),
 });
 
-//class enum
-export const classEnum = pgEnum("level", [
-  "PR1",
-  "PR2",
-  "PR3",
-  "PR4",
-  "PRS",
-  "PR6",
-]);
+// //class enum
+// export const classEnum = pgEnum("level", [
+//   "PR1",
+//   "PR2",
+//   "PR3",
+//   "PR4",
+//   "PRS",
+//   "PR6",
+// ]);
 
 export const classLevel = pgTable("class", {
   id: text("id").primaryKey(),
-  memberId: text("member_id")
-    .notNull()
-    .references(() => member.id), //i don't believe its necessary
   organizationId: text("organization_id")
     .notNull()
     .references(() => organization.id, { onDelete: "cascade" }),
-  level: classEnum("level").notNull(),
+  level: text("level").notNull(),
   class: text("class").notNull(),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -154,7 +151,7 @@ export const subject = pgTable("subject", {
     .references(() => organization.id, { onDelete: "cascade" }),
   subjectName: varchar("subject_name", { length: 3 }).notNull(),
   slug: text("slug").notNull().unique(),
-  level: classEnum("level").notNull(),
+  level: text("class").notNull(),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -219,12 +216,14 @@ export const organizationRelations = relations(organization, ({ many }) => ({
 export type Member = typeof member.$inferSelect & {
   user: typeof user.$inferSelect;
 };
-export type student = typeof student.$inferSelect;
+export type Student = typeof student.$inferSelect;
 
 export type User = typeof user.$inferSelect;
 export type Session = typeof session.$inferSelect;
 
 export type Organization = typeof organization.$inferSelect;
+
+export type Subject = typeof subject.$inferSelect;
 
 export const schema = {
   user,

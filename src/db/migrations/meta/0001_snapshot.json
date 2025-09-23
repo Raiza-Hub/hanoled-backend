@@ -1,6 +1,6 @@
 {
-  "id": "c9474a48-bb5a-4796-ad99-88273f932808",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "227f6aeb-cd5e-4194-a5fd-6dd5fa71a3d8",
+  "prevId": "c9474a48-bb5a-4796-ad99-88273f932808",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -119,12 +119,6 @@
           "primaryKey": true,
           "notNull": true
         },
-        "member_id": {
-          "name": "member_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
         "organization_id": {
           "name": "organization_id",
           "type": "text",
@@ -159,19 +153,6 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "class_member_id_member_id_fk": {
-          "name": "class_member_id_member_id_fk",
-          "tableFrom": "class",
-          "tableTo": "member",
-          "columnsFrom": [
-            "member_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
         "class_organization_id_organization_id_fk": {
           "name": "class_organization_id_organization_id_fk",
           "tableFrom": "class",

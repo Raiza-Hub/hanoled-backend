@@ -1,4 +1,3 @@
-CREATE TYPE "public"."level" AS ENUM('PR1', 'PR2', 'PR3', 'PR4', 'PRS', 'PR6');--> statement-breakpoint
 CREATE TYPE "public"."gender" AS ENUM('male', 'female');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('parent', 'member');--> statement-breakpoint
 CREATE TABLE "account" (
@@ -21,7 +20,7 @@ CREATE TABLE "class" (
 	"id" text PRIMARY KEY NOT NULL,
 	"member_id" text NOT NULL,
 	"organization_id" text NOT NULL,
-	"level" "level" NOT NULL,
+	"level" text NOT NULL,
 	"class" text NOT NULL,
 	"created_at" timestamp NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
@@ -99,7 +98,7 @@ CREATE TABLE "subject" (
 	"organization_id" text NOT NULL,
 	"subject_name" varchar(3) NOT NULL,
 	"slug" text NOT NULL,
-	"level" "level" NOT NULL,
+	"class" text NOT NULL,
 	"created_at" timestamp NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "subject_slug_unique" UNIQUE("slug")
