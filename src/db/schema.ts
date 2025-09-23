@@ -82,7 +82,7 @@ export const organization = pgTable("organization", {
   createdAt: timestamp("created_at").notNull(),
 });
 
-export const memberRole = pgEnum("role", ["parent", "member"]);
+export const memberRole = pgEnum("role", ["member", "owner", "admin"]);
 
 export const member = pgTable("member", {
   id: text("id").primaryKey(),
@@ -119,29 +119,20 @@ export const parent = pgTable("parent", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  role: memberRole("role").default("parent").notNull(),
+  role: text("role").default("parent").notNull(),
   createdAt: timestamp("created_at").notNull(),
 });
 
-//class enum
-export const classEnum = pgEnum("level", [
-  "PR1",
-  "PR2",
-  "PR3",
-  "PR4",
-  "PRS",
-  "PR6",
-]);
 
 export const classLevel = pgTable("class", {
   id: text("id").primaryKey(),
   memberId: text("member_id")
     .notNull()
-    .references(() => member.id), //i dont belive its necessary
+    .references(() => member.id, { onDelete: "set null" }), 
   organizationId: text("organization_id")
     .notNull()
     .references(() => organization.id, { onDelete: "cascade" }),
-  level: classEnum("level").notNull(),
+  level: text("level").notNull(),
   class: text("class").notNull(),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -152,9 +143,10 @@ export const subject = pgTable("subject", {
   organizationId: text("organization_id")
     .notNull()
     .references(() => organization.id, { onDelete: "cascade" }),
-  subjectName: varchar("subject_name", { length: 3 }).notNull(),
-  slug: text("slug").notNull().unique(),
-  level: classEnum("level").notNull(),
+  memberId: text("member_id")
+    .notNull()
+    .references(() => member.id, { onDelete: "cascade" }), 
+  subjectName: varchar("subject_name", { length: 256 }).notNull(),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -207,12 +199,12 @@ export const usersRelations = relations(user, ({ many }) => ({
   invitationsSent: many(invitation),
 }));
 
-export const organisationRelations = relations(organization, ({ many }) => ({
+export const organizationRelations = relations(organization, ({ many }) => ({
   members: many(member),
   invitations: many(invitation),
   parents: many(parent),
-  subject: many(subject), //somthing
-  classLevel: many(classLevel), //something
+  subject: many(subject),
+  classLevel: many(classLevel),
   student: many(student),
 }));
 
@@ -240,7 +232,5 @@ export const schema = {
   student,
   studentRelations,
   memberRelations,
-  organisationRelations,
+  organizationRelations,
 };
-
-//added class, student, subject table
