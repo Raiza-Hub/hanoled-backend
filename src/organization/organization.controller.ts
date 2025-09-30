@@ -92,6 +92,13 @@ export const getOrganizationBySlug = async (
 
     const { slug } = req.params;
 
+    const roles = req.user as string[]; // cast to string[] since middleware attaches roles
+
+    if (!roles || roles.length === 0) {
+      return next(new AppError("User has no roles for this organization", 403));
+    }
+
+
     const organizationBySlug = await OrganizationService.getOrganizationBySlug(
       slug
     );
@@ -102,7 +109,7 @@ export const getOrganizationBySlug = async (
       );
     }
 
-    res.status(200).json({ success: true, message: organizationBySlug });
+    res.status(200).json({ success: true, message: organizationBySlug, roles });
   } catch (err) {
     next(err);
   }
@@ -160,7 +167,7 @@ export const getUserSchoolRoles = async (
       roles.push(memberRecord.role);
     }
     if (parentRecord) {
-      roles.push("parent");
+      roles.push(parentRecord.role);
     }
 
     res.status(200).json({ success: true, message: roles });
