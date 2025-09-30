@@ -82,7 +82,7 @@ export const organization = pgTable("organization", {
   createdAt: timestamp("created_at").notNull(),
 });
 
-export const memberRole = pgEnum("role", ["parent", "member"]);
+export const memberRole = pgEnum("role", ["owner", "admin", "member"]);
 
 export const member = pgTable("member", {
   id: text("id").primaryKey(),
@@ -119,7 +119,7 @@ export const parent = pgTable("parent", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  role: memberRole("role").default("parent").notNull(),
+  role: text("role").default("parent").notNull(),
   createdAt: timestamp("created_at").notNull(),
 });
 
@@ -135,6 +135,9 @@ export const parent = pgTable("parent", {
 
 export const classLevel = pgTable("class", {
   id: text("id").primaryKey(),
+  memberId: text("member_id")
+    .notNull()
+    .references(() => member.id, { onDelete: "set null" }), 
   organizationId: text("organization_id")
     .notNull()
     .references(() => organization.id, { onDelete: "cascade" }),
@@ -149,9 +152,10 @@ export const subject = pgTable("subject", {
   organizationId: text("organization_id")
     .notNull()
     .references(() => organization.id, { onDelete: "cascade" }),
-  subjectName: varchar("subject_name", { length: 3 }).notNull(),
-  slug: text("slug").notNull().unique(),
-  level: text("class").notNull(),
+  memberId: text("member_id")
+    .notNull()
+    .references(() => member.id, { onDelete: "set null" }), 
+  subjectName: varchar("subject_name", { length: 256 }).notNull(),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
