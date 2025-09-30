@@ -6,6 +6,7 @@ import { EmailOptions, sendEmail } from "@/utils/mailer.js";
 import UserService from "@/user/user.service.js";
 import { admin, member, owner, parent } from "./validators/permissions.js";
 import { getUserRoles } from "@/utils/getUserRoles.js";
+import { getUserSchoolRoles } from "@/organization/organization.controller.js";
 // import { admin, member, owner, parent } from "";
 // import { getUserRoles } from "../utils/getUserRoles";
 // import { EmailOptions, sendEmail } from "../utils/mailer";
@@ -43,6 +44,10 @@ export const auth = betterAuth({
     },
     autoSignInAfterVerification: true,
   },
+    trustedOrigins: [
+    "http://localhost:3000", // ✅ your Next.js frontend
+    "http://localhost:8000", // ✅ your backend (keep this too)
+  ],
   plugins: [
     organization({
       roles: {
@@ -52,14 +57,14 @@ export const auth = betterAuth({
         parent,
       },
     }),
-    customSession(async ({ user, session }) => {
-      const role = await getUserRoles(user.id);
-      return {
-        role,
-        user,
-        session,
-      };
-    }),
+    // customSession(async ({ user, session }) => {
+    //   const role = await getUserSchoolRoles(user.id);
+    //   return {
+    //     role,
+    //     user,
+    //     session,
+    //   };
+    // }),
     openAPI(),
   ],
   // session: {
