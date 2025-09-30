@@ -8,6 +8,7 @@ import { auth } from "./lib/auth.js";
 import organizationRoutes from "./organization/organization.routes.js";
 import adminRoutes from "./admin/admin.routes.js";
 import memberRoutes from "./member/member.routes.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 const port = process.env.PORT;
@@ -23,6 +24,7 @@ app.use(
 
 app.all("/api/auth/{*splat}", toNodeHandler(auth));
 
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
