@@ -1,5 +1,5 @@
 import { db } from "@/db/db.js";
-import { classLevel, Subject, subject } from "@/db/schema.js";
+import { classLevel, subject } from "@/db/schema.js";
 import { and, eq } from "drizzle-orm";
 
 class AdminService {
@@ -15,13 +15,11 @@ class AdminService {
   static async getOrganizationSubject(
     organizationId: string,
     subjectName: string,
-    level: string
   ) {
     return await db.query.subject.findFirst({
       where: and(
         eq(subject.organizationId, organizationId),
         eq(subject.subjectName, subjectName),
-        eq(subject.level, level)
       ),
     });
   }
