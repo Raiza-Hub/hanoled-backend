@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { AppError } from "./appError.js";
 
 export const getUserRoles = async (userId: string) => {
+  console.log(userId);
   const memberUser = await db.query.member.findFirst({
     where: eq(member.userId, userId),
     columns: { role: true },

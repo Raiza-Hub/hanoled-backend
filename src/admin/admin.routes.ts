@@ -1,4 +1,4 @@
-import { getActiveOrganization } from "@/middleware/currentOrganization.js";
+import { activeOrganization } from "@/middleware/currentOrganization.js";
 import { getSession } from "@/middleware/getUserSession.js";
 import { isAdmin } from "@/middleware/isAdmin.js";
 import express, { Router } from "express";
@@ -7,6 +7,10 @@ import {
   createNewSubject,
   getAllOrganizationClasses,
   getAllSubjects,
+  createStudent,
+  getUnassignedMembers,
+  getAllMembers,
+  getAllParents,
 } from "./admin.controller.js";
 
 const router: Router = express.Router();
@@ -15,7 +19,7 @@ router.get(
   "/subjects",
   getSession,
   isAdmin,
-  getActiveOrganization,
+  activeOrganization,
   getAllSubjects
 );
 
@@ -23,7 +27,7 @@ router.post(
   "/create/subject",
   getSession,
   isAdmin,
-  getActiveOrganization,
+  activeOrganization,
   createNewSubject
 );
 
@@ -31,7 +35,7 @@ router.post(
   "/create/class",
   getSession,
   isAdmin,
-  getActiveOrganization,
+  activeOrganization,
   createNewClass
 );
 
@@ -39,8 +43,39 @@ router.get(
   "/classes",
   getSession,
   isAdmin,
-  getActiveOrganization,
+  activeOrganization,
   getAllOrganizationClasses
+);
+
+router.post(
+  "/create/student",
+  getSession,
+  isAdmin,
+  activeOrganization,
+  createStudent
+);
+
+router.get(
+  "/getUnassigned/member",
+  getSession,
+  isAdmin,
+  activeOrganization,
+  getUnassignedMembers
+);
+
+router.get(
+  "/getAll/members",
+  getSession,
+  isAdmin,
+  activeOrganization,
+  getAllMembers
+);
+router.get(
+  "/getAll/parents",
+  getSession,
+  isAdmin,
+  activeOrganization,
+  getAllParents
 );
 
 export default router;

@@ -1,5 +1,5 @@
 import { db } from "@/db/db.js";
-import { classLevel, Subject, subject } from "@/db/schema.js";
+import { classLevel, member, parent, student, subject } from "@/db/schema.js";
 import { and, eq } from "drizzle-orm";
 
 class AdminService {
@@ -14,14 +14,12 @@ class AdminService {
   }
   static async getOrganizationSubject(
     organizationId: string,
-    subjectName: string,
-    level: string
+    subjectName: string
   ) {
     return await db.query.subject.findFirst({
       where: and(
         eq(subject.organizationId, organizationId),
-        eq(subject.subjectName, subjectName),
-        eq(subject.level, level)
+        eq(subject.subjectName, subjectName)
       ),
     });
   }
@@ -40,6 +38,40 @@ class AdminService {
   }
   static async createClass(data: any) {
     return await db.insert(classLevel).values(data);
+  }
+  static async updateMember(memberId: string, data: boolean) {
+    return await db
+      .update(member)
+      .set({ isAssigned: data })
+      .where(eq(member.id, memberId))
+      .returning();
+  }
+  static async getStudent(
+    firstName: string,
+    lastName: string,
+    middleName: string
+  ) {
+    return await db.query.student.findFirst({
+      where: and(
+        eq(student.firstName, firstName),
+        eq(student.lastName, lastName),
+        eq(student.middleName, middleName)
+      ),
+    });
+  }
+  static async createStudent(data: any) {
+    return await db.insert(student).values(data);
+  }
+
+  static async getOrganizationMembers(organizationId: string) {
+    return await db.query.member.findMany({
+      where: eq(member.organizationId, organizationId),
+    });
+  }
+  static async getOrganizationParents(organizationId: string) {
+    return await db.query.parent.findMany({
+      where: eq(parent.organizationId, organizationId),
+    });
   }
 }
 

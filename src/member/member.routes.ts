@@ -4,16 +4,16 @@ import {
   getAllSubjects,
 } from "./member.controller.js";
 import { getSession } from "@/middleware/getUserSession.js";
-import { getActiveOrganization } from "@/middleware/currentOrganization.js";
+import { activeOrganization } from "@/middleware/currentOrganization.js";
 
 const router: Router = express.Router();
 
-router.get("/subjects", getSession, getActiveOrganization, getAllSubjects);
+router.get("/subjects", getSession, activeOrganization, getAllSubjects);
 
 router.get(
   "/classes",
   getSession,
-  getActiveOrganization,
+  activeOrganization,
   getAllOrganizationClasses
 );
 

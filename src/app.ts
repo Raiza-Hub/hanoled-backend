@@ -12,7 +12,6 @@ import memberRoutes from "./member/member.routes.js";
 const app = express();
 const port = process.env.PORT;
 
-app.all("/api/auth/{*splat}", toNodeHandler(auth));
 
 app.use(
   cors({
@@ -21,6 +20,8 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE"],
   })
 );
+
+app.all("/api/auth/{*splat}", toNodeHandler(auth));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

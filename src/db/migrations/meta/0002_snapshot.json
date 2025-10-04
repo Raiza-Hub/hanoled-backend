@@ -1,6 +1,6 @@
 {
-  "id": "09a3cbed-3200-4346-b4a0-fe01c29f1a93",
-  "prevId": "40fca27d-5bc4-49b7-8f82-6c474d7878c6",
+  "id": "7644fe52-fa13-49a4-94aa-f838b4fd6cee",
+  "prevId": "09a3cbed-3200-4346-b4a0-fe01c29f1a93",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -140,6 +140,12 @@
         "class": {
           "name": "class",
           "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "limit": {
+          "name": "limit",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
@@ -430,6 +436,12 @@
         "user_id": {
           "name": "user_id",
           "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "student_ids": {
+          "name": "student_ids",
+          "type": "text[]",
           "primaryKey": false,
           "notNull": true
         },

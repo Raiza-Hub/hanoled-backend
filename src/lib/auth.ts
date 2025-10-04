@@ -43,6 +43,7 @@ export const auth = betterAuth({
     },
     autoSignInAfterVerification: true,
   },
+  trustedOrigins: ["http:localhost:3000", "http:localhost:8000"],
   plugins: [
     organization({
       roles: {

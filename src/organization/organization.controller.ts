@@ -14,8 +14,6 @@ export const getOrganizations = async (
 
     const user = req.user;
 
-    // const { user } = await getUserSession(req);
-
     const memberships = await MemberService.getAllMembers(user.id);
 
     if (memberships.length == 0) {
@@ -40,19 +38,21 @@ export const getActiveOrganization = async (
   try {
     console.log("get active organization session");
 
-    const user = req.user;
+    // const user = req.user;
 
-    const userId = user.id;
+    // const userId = user.id;
 
-    const memberUser = await MemberService.getMember(userId);
+    // const memberUser = await MemberService.getMember(userId);
 
-    if (!memberUser) {
-      return next(new AppError("There was an issue getting the member", 500));
-    }
+    // if (!memberUser) {
+    //   return next(new AppError("There was an issue getting the member", 500));
+    // }
 
-    const activeOrganization = await OrganizationService.getActiveOrganization(
-      memberUser.organizationId
-    );
+    // const activeOrganization = await OrganizationService.getActiveOrganization(
+    //   memberUser.organizationId
+    // );
+
+    const activeOrganization = req.organization;
 
     res.status(200).json({ success: true, message: activeOrganization });
   } catch (err) {

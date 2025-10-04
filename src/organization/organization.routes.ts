@@ -8,12 +8,18 @@ import {
   getUserSchoolRoles,
 } from "@/organization/organization.controller.js";
 import { getSession } from "@/middleware/getUserSession.js";
+import { activeOrganization } from "@/middleware/currentOrganization.js";
 
 const router: Router = express.Router();
 
 router.get("/userOrganizations", getSession, getOrganizations);
 
-router.get("currentOrganization", getSession, getActiveOrganization);
+router.get(
+  "currentOrganization",
+  getSession,
+  activeOrganization,
+  getActiveOrganization
+);
 
 router.get("/member", getSession, getMember);
 

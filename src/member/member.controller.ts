@@ -34,7 +34,7 @@ export const getAllOrganizationClasses = async (
       organization.id
     );
 
-    if ((organizationClasses.length = 0)) {
+    if (organizationClasses.length == 0) {
       return [];
     }
 

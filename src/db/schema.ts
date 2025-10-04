@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm";
 import {
   boolean,
   date,
+  integer,
   pgEnum,
   pgTable,
   text,
@@ -17,15 +18,9 @@ export const user = pgTable("user", {
     .$defaultFn(() => false)
     .notNull(),
   image: text("image"),
-  createdAt: timestamp("created_at")
-    .$defaultFn(() => /* @__PURE__ */ new Date())
-    .notNull(),
-  updatedAt: timestamp("updated_at")
-    .$defaultFn(() => /* @__PURE__ */ new Date())
-    .notNull(),
-  lastActive: timestamp("last_active")
-    .$defaultFn(() => /* @__PURE__ */ new Date())
-    .notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+  lastActive: timestamp("last_active").notNull(),
 });
 
 export const session = pgTable("session", {
@@ -65,12 +60,8 @@ export const verification = pgTable("verification", {
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").$defaultFn(
-    () => /* @__PURE__ */ new Date()
-  ),
-  updatedAt: timestamp("updated_at").$defaultFn(
-    () => /* @__PURE__ */ new Date()
-  ),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });
 
 export const organization = pgTable("organization", {
@@ -82,7 +73,7 @@ export const organization = pgTable("organization", {
   createdAt: timestamp("created_at").notNull(),
 });
 
-export const memberRole = pgEnum("role", ["parent", "member"]);
+export const memberRole = pgEnum("role", ["member", "owner", "admin"]);
 
 export const member = pgTable("member", {
   id: text("id").primaryKey(),
@@ -94,6 +85,7 @@ export const member = pgTable("member", {
     .references(() => user.id, { onDelete: "cascade" }),
   // role: text("role").default("member").notNull(),
   role: memberRole("role").default("member").notNull(),
+  isAssigned: boolean("is_assigned").default(false).notNull(),
   createdAt: timestamp("created_at").notNull(),
 });
 
@@ -119,27 +111,22 @@ export const parent = pgTable("parent", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  role: memberRole("role").default("parent").notNull(),
+  studentId: text("student_ids").array().notNull(),
+  role: text("role").default("parent").notNull(),
   createdAt: timestamp("created_at").notNull(),
 });
 
-// //class enum
-// export const classEnum = pgEnum("level", [
-//   "PR1",
-//   "PR2",
-//   "PR3",
-//   "PR4",
-//   "PRS",
-//   "PR6",
-// ]);
-
 export const classLevel = pgTable("class", {
   id: text("id").primaryKey(),
+  memberId: text("member_id")
+    .notNull()
+    .references(() => member.id, { onDelete: "set null" }),
   organizationId: text("organization_id")
     .notNull()
     .references(() => organization.id, { onDelete: "cascade" }),
   level: text("level").notNull(),
   class: text("class").notNull(),
+  limit: integer("limit").notNull(),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -149,9 +136,10 @@ export const subject = pgTable("subject", {
   organizationId: text("organization_id")
     .notNull()
     .references(() => organization.id, { onDelete: "cascade" }),
-  subjectName: varchar("subject_name", { length: 3 }).notNull(),
-  slug: text("slug").notNull().unique(),
-  level: text("class").notNull(),
+  memberId: text("member_id")
+    .notNull()
+    .references(() => member.id, { onDelete: "cascade" }),
+  subjectName: varchar("subject_name", { length: 256 }).notNull(),
   createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -216,7 +204,7 @@ export const organizationRelations = relations(organization, ({ many }) => ({
 export type Member = typeof member.$inferSelect & {
   user: typeof user.$inferSelect;
 };
-export type Student = typeof student.$inferSelect;
+export type student = typeof student.$inferSelect;
 
 export type User = typeof user.$inferSelect;
 export type Session = typeof session.$inferSelect;
@@ -241,5 +229,3 @@ export const schema = {
   memberRelations,
   organizationRelations,
 };
-
-//added class, student, subject table

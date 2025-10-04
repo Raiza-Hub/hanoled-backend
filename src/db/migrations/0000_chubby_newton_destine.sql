@@ -1,5 +1,5 @@
 CREATE TYPE "public"."gender" AS ENUM('male', 'female');--> statement-breakpoint
-CREATE TYPE "public"."role" AS ENUM('parent', 'member');--> statement-breakpoint
+CREATE TYPE "public"."role" AS ENUM('parent', 'member', 'owner');--> statement-breakpoint
 CREATE TABLE "account" (
 	"id" text PRIMARY KEY NOT NULL,
 	"account_id" text NOT NULL,
@@ -18,7 +18,6 @@ CREATE TABLE "account" (
 --> statement-breakpoint
 CREATE TABLE "class" (
 	"id" text PRIMARY KEY NOT NULL,
-	"member_id" text NOT NULL,
 	"organization_id" text NOT NULL,
 	"level" text NOT NULL,
 	"class" text NOT NULL,
@@ -46,8 +45,9 @@ CREATE TABLE "member" (
 --> statement-breakpoint
 CREATE TABLE "organization" (
 	"id" text PRIMARY KEY NOT NULL,
+	"user_id" text,
 	"name" text NOT NULL,
-	"slug" text,
+	"slug" varchar(3) NOT NULL,
 	"logo" text,
 	"metadata" text,
 	"created_at" timestamp NOT NULL,
@@ -96,8 +96,8 @@ CREATE TABLE "student" (
 CREATE TABLE "subject" (
 	"id" text PRIMARY KEY NOT NULL,
 	"organization_id" text NOT NULL,
-	"subject_name" varchar(3) NOT NULL,
-	"slug" text NOT NULL,
+	"subject_name" text NOT NULL,
+	"slug" varchar(3) NOT NULL,
 	"class" text NOT NULL,
 	"created_at" timestamp NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
@@ -126,12 +126,12 @@ CREATE TABLE "verification" (
 );
 --> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "class" ADD CONSTRAINT "class_member_id_member_id_fk" FOREIGN KEY ("member_id") REFERENCES "public"."member"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "class" ADD CONSTRAINT "class_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "invitation" ADD CONSTRAINT "invitation_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "invitation" ADD CONSTRAINT "invitation_inviter_id_user_id_fk" FOREIGN KEY ("inviter_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "member" ADD CONSTRAINT "member_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "member" ADD CONSTRAINT "member_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "organization" ADD CONSTRAINT "organization_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "parent" ADD CONSTRAINT "parent_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "parent" ADD CONSTRAINT "parent_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint

@@ -3,7 +3,7 @@ import OrganizationService from "@/organization/organization.service.js";
 import { AppError } from "@/utils/appError.js";
 import { NextFunction, Request, Response } from "express";
 
-export const getActiveOrganization = async (
+export const activeOrganization = async (
   req: Request,
   res: Response,
   next: NextFunction

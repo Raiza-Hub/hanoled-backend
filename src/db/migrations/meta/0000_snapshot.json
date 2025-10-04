@@ -1,5 +1,5 @@
 {
-  "id": "c9474a48-bb5a-4796-ad99-88273f932808",
+  "id": "40fca27d-5bc4-49b7-8f82-6c474d7878c6",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -119,12 +119,6 @@
           "primaryKey": true,
           "notNull": true
         },
-        "member_id": {
-          "name": "member_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
         "organization_id": {
           "name": "organization_id",
           "type": "text",
@@ -159,19 +153,6 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "class_member_id_member_id_fk": {
-          "name": "class_member_id_member_id_fk",
-          "tableFrom": "class",
-          "tableTo": "member",
-          "columnsFrom": [
-            "member_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
         "class_organization_id_organization_id_fk": {
           "name": "class_organization_id_organization_id_fk",
           "tableFrom": "class",
@@ -357,6 +338,12 @@
           "primaryKey": true,
           "notNull": true
         },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "name": {
           "name": "name",
           "type": "text",
@@ -365,9 +352,9 @@
         },
         "slug": {
           "name": "slug",
-          "type": "text",
+          "type": "varchar(3)",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "logo": {
           "name": "logo",
@@ -389,7 +376,21 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "organization_user_id_user_id_fk": {
+          "name": "organization_user_id_user_id_fk",
+          "tableFrom": "organization",
+          "tableTo": "user",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "organization_slug_unique": {
@@ -716,13 +717,13 @@
         },
         "subject_name": {
           "name": "subject_name",
-          "type": "varchar(3)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "slug": {
           "name": "slug",
-          "type": "text",
+          "type": "varchar(3)",
           "primaryKey": false,
           "notNull": true
         },
@@ -909,7 +910,8 @@
       "schema": "public",
       "values": [
         "parent",
-        "member"
+        "member",
+        "owner"
       ]
     }
   },
