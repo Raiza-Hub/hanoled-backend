@@ -225,6 +225,7 @@ export type Session = typeof session.$inferSelect;
 export type Organization = typeof organization.$inferSelect;
 
 export type Subject = typeof subject.$inferSelect;
+export type ClassLevel = typeof classLevel.$inferSelect
 
 export const schema = {
   user,
