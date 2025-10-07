@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import AdminService from "./admin.service.js";
 import { Organization, Subject } from "@/db/schema.js";
 
+
 export const getAllSubjects = async (
   req: Request,
   res: Response,
@@ -35,15 +36,14 @@ export const createNewSubject = async (
   next: NextFunction
 ) => {
   try {
-    const activeOrganization = req.organization;
+    const activeOrganization: Organization = req.organization;
 
-    const { subjectName, slug, level } = req.body;
+    const { subjectName } = req.body;
 
     //check if subject already exists
     const subjectExists = await AdminService.getOrganizationSubject(
       activeOrganization.id,
       subjectName,
-      level
     );
 
     if (subjectExists) {
@@ -53,13 +53,11 @@ export const createNewSubject = async (
     const subjectData = {
       organizationId: activeOrganization.id,
       subjectName,
-      slug,
-      level,
     };
 
     const newSubject = await AdminService.createSubject(subjectData);
 
-    res.status(200).json({ success: true, message: subjectData });
+    res.status(200).json({ success: true, message: newSubject });
   } catch (err) {
     next(err);
   }
@@ -73,10 +71,10 @@ export const createNewClass = async (
   try {
     const { className, level } = req.body;
 
-    const organization = req.organization;
+    const  activeOrganization: Organization = req.organization;
 
     const classExists = await AdminService.getOrganizationClass(
-      organization.id,
+       activeOrganization.id,
       className
     );
 
@@ -85,7 +83,7 @@ export const createNewClass = async (
     }
 
     const classData = {
-      organizationId: organization.id,
+      organizationId:  activeOrganization.id,
       class: className,
       level,
     };
@@ -104,10 +102,10 @@ export const getAllOrganizationClasses = async (
   next: NextFunction
 ) => {
   try {
-    const organization = req.organization;
+    const activeOrganization: Organization = req.organization;
 
     const organizationClasses = await AdminService.getOrganizationClasses(
-      organization.id
+       activeOrganization.id
     );
 
     if ((organizationClasses.length === 0)) {
