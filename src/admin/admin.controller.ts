@@ -2,6 +2,7 @@ import { AppError } from "@/utils/appError.js";
 import { NextFunction, Request, Response } from "express";
 import AdminService from "./admin.service.js";
 import { Organization, Subject } from "@/db/schema.js";
+import MemberService from "@/member/member.service.js";
 
 
 export const getAllSubjects = async (
@@ -18,13 +19,13 @@ export const getAllSubjects = async (
       activeOrganization.id as string
     );
 
-    if (organizationSubjects.length == 0) {
-      return [];
+    if (organizationSubjects.length === 0) {
+      return res.status(200).json({ success: true, message: [] });
     }
 
     const subjects = organizationSubjects.map((s: Subject) => s.subjectName);
 
-    res.status(200).json({ sucess: true, message: subjects });
+    res.status(200).json({ success: true, message: subjects });
   } catch (err) {
     next(err);
   }
@@ -78,13 +79,20 @@ export const createNewClass = async (
       className
     );
 
+    const memberUser = await MemberService.getMember(req.user.id);
+
+      if (!memberUser) {
+      return next(new AppError("There was an issue getting the member", 500));
+    }
+
     if (classExists) {
       return next(new AppError("This class already exists", 400));
     }
 
     const classData = {
-      organizationId:  activeOrganization.id,
+      organizationId: activeOrganization.id,
       class: className,
+      memberId: memberUser.id,
       level,
     };
 
@@ -108,8 +116,8 @@ export const getAllOrganizationClasses = async (
        activeOrganization.id
     );
 
-    if ((organizationClasses.length === 0)) {
-      return [];
+    if (organizationClasses.length === 0) {
+      return res.status(200).json({ success: true, message: [] });
     }
 
     res.status(200).json({ success: true, message: organizationClasses });
