@@ -16,7 +16,7 @@ export const getAllSubjects = async (
 
     const subjects = organizationSubjects.map((s: Subject) => s.subjectName);
 
-    res.status(200).json({ sucess: true, message: subjects });
+    res.status(200).json({ success: true, message: subjects });
   } catch (err) {
     next(err);
   }
@@ -34,7 +34,7 @@ export const getAllOrganizationClasses = async (
       organization.id
     );
 
-    if ((organizationClasses.length = 0)) {
+    if ((organizationClasses.length === 0)) {
       return [];
     }
 
