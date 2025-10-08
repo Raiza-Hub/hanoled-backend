@@ -45,7 +45,7 @@ export const getUserRole = async (
     }
 
     // Attach roles to request object for use in subsequent middleware/routes
-    req.user = roles;
+    req.user.roles = roles;
 
     // Continue to next middleware/route handler
     next();
