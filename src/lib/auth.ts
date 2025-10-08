@@ -1,12 +1,13 @@
-import { betterAuth } from "better-auth";
+import { APIError, betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { customSession, openAPI, organization } from "better-auth/plugins";
+import { createAuthEndpoint, openAPI, organization } from "better-auth/plugins";
 import { db } from "@/db/db.js";
 import { EmailOptions, sendEmail } from "@/utils/mailer.js";
 import UserService from "@/user/user.service.js";
 import { admin, member, owner, parent } from "./validators/permissions.js";
-import { getUserRoles } from "@/utils/getUserRoles.js";
-import { getUserSchoolRoles } from "@/organization/organization.controller.js";
+import { validate_password } from "./plugins/validate-password/index.js";
+// import { getUserRoles } from "@/utils/getUserRoles.js";
+// import { getUserSchoolRoles } from "@/organization/organization.controller.js";
 // import { admin, member, owner, parent } from "";
 // import { getUserRoles } from "../utils/getUserRoles";
 // import { EmailOptions, sendEmail } from "../utils/mailer";
@@ -66,6 +67,8 @@ export const auth = betterAuth({
     //   };
     // }),
     openAPI(),
+    validate_password()
+
   ],
   // session: {
   //   cookieCache: {
