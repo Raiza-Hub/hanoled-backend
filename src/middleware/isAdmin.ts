@@ -9,7 +9,7 @@ export const isAdmin = async (
   try {
     const user = req.user;
 
-    if (user.role !== "admin" || user.role !== "owner") {
+    if (user.role !== "admin" && user.role !== "owner") {
       return next(
         new AppError("You dont have permission to access this endpoint", 401)
       );
