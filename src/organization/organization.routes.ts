@@ -14,7 +14,7 @@ const router: Router = express.Router();
 
 router.get("/userOrganizations", getSession, getOrganizations);
 
-router.get("currentOrganization", getSession, getActiveOrganization);
+router.get("/currentOrganization", getSession, getActiveOrganization);
 
 router.get("/member", getSession, getMember);
 
