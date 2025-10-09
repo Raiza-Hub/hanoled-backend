@@ -2,7 +2,6 @@ import { db } from "@/db/db.js";
 import { member } from "@/db/schema.js";
 import { and, eq } from "drizzle-orm";
 
-
 class MemberService {
   static async getAllMembers(userId: string) {
     return await db.query.member.findMany({

@@ -12,7 +12,6 @@ import memberRoutes from "./member/member.routes.js";
 const app = express();
 const port = process.env.PORT;
 
-
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -28,7 +27,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use("/api/organization", organizationRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/api/user", memberRoutes);
+app.use("/api/member", memberRoutes);
 
 app.use(errorHandler);
 

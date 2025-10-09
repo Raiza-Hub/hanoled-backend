@@ -3,7 +3,7 @@ import {
   getAllOrganizationClasses,
   getAllSubjects,
 } from "./member.controller.js";
-import { getSession } from "@/middleware/getUserSession.js";
+import { getSession } from "@/middleware/getMemberSession.js";
 import { activeOrganization } from "@/middleware/currentOrganization.js";
 
 const router: Router = express.Router();

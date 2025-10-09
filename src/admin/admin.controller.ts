@@ -17,10 +17,6 @@ export const getAllSubjects = async (
       activeOrganization.id as string
     );
 
-    if (organizationSubjects.length == 0) {
-      return [];
-    }
-
     const subjects = organizationSubjects.map((s: Subject) => s.subjectName);
 
     res.status(200).json({ sucess: true, message: subjects });
@@ -207,6 +203,8 @@ export const getAllParents = async (
     const getParents = await AdminService.getOrganizationParents(
       organization.id
     );
+
+    res.status(200).json({ sucess: true, message: getParents });
   } catch (err) {
     next(err);
   }

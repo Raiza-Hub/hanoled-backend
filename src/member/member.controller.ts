@@ -34,10 +34,6 @@ export const getAllOrganizationClasses = async (
       organization.id
     );
 
-    if (organizationClasses.length == 0) {
-      return [];
-    }
-
     res.status(200).json({ success: true, message: organizationClasses });
   } catch (err) {
     next(err);

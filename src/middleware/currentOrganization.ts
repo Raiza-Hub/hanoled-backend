@@ -11,15 +11,7 @@ export const activeOrganization = async (
   try {
     console.log("get active organization session");
 
-    const user = req.user;
-
-    const userId = user.id;
-
-    const memberUser = await MemberService.getMember(userId);
-
-    if (!memberUser) {
-      return next(new AppError("There was an issue getting the member", 500));
-    }
+    const memberUser = req.user;
 
     const activeOrganization = await OrganizationService.getActiveOrganization(
       memberUser.organizationId

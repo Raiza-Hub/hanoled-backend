@@ -10,7 +10,7 @@ class AdminService {
   }
   static async createSubject(data: any) {
     //any
-    return await db.insert(subject).values(data);
+    return await db.insert(subject).values(data).returning();
   }
   static async getOrganizationSubject(
     organizationId: string,
@@ -37,7 +37,7 @@ class AdminService {
     });
   }
   static async createClass(data: any) {
-    return await db.insert(classLevel).values(data);
+    return await db.insert(classLevel).values(data).returning();
   }
   static async updateMember(memberId: string, data: boolean) {
     return await db
@@ -60,7 +60,7 @@ class AdminService {
     });
   }
   static async createStudent(data: any) {
-    return await db.insert(student).values(data);
+    return await db.insert(student).values(data).returning();
   }
 
   static async getOrganizationMembers(organizationId: string) {

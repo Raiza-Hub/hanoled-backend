@@ -1,5 +1,5 @@
 import { activeOrganization } from "@/middleware/currentOrganization.js";
-import { getSession } from "@/middleware/getUserSession.js";
+import { getSession } from "@/middleware/getMemberSession.js";
 import { isAdmin } from "@/middleware/isAdmin.js";
 import express, { Router } from "express";
 import {
@@ -56,7 +56,7 @@ router.post(
 );
 
 router.get(
-  "/getUnassigned/member",
+  "/get/unassignedMember",
   getSession,
   isAdmin,
   activeOrganization,
@@ -64,14 +64,14 @@ router.get(
 );
 
 router.get(
-  "/getAll/members",
+  "/get/members",
   getSession,
   isAdmin,
   activeOrganization,
   getAllMembers
 );
 router.get(
-  "/getAll/parents",
+  "/get/parents",
   getSession,
   isAdmin,
   activeOrganization,

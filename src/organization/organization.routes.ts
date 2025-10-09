@@ -5,9 +5,9 @@ import {
   getOrganizationBySlug,
   getOrganizations,
   getRoleInOrganization,
-  getUserSchoolRoles,
+  // getUserSchoolRoles,
 } from "@/organization/organization.controller.js";
-import { getSession } from "@/middleware/getUserSession.js";
+import { getSession } from "@/middleware/getMemberSession.js";
 import { activeOrganization } from "@/middleware/currentOrganization.js";
 
 const router: Router = express.Router();
@@ -15,7 +15,7 @@ const router: Router = express.Router();
 router.get("/userOrganizations", getSession, getOrganizations);
 
 router.get(
-  "currentOrganization",
+  "/currentOrganization",
   getSession,
   activeOrganization,
   getActiveOrganization
@@ -27,6 +27,6 @@ router.get("/userOrganization/:slug", getOrganizationBySlug);
 
 router.get("/organizationRole", getSession, getRoleInOrganization);
 
-router.get("/schoolRoles", getSession, getUserSchoolRoles);
+// router.get("/schoolRoles", getSession, getUserSchoolRoles);
 
 export default router;
