@@ -8,4 +8,9 @@ declare global {
       user?: any;
     }
   }
+  namespace Express {
+    interface Request {
+      organization?: any;
+    }
+  }
 }

@@ -2,7 +2,6 @@ import { db } from "@/db/db.js";
 import { Member, organization } from "@/db/schema.js";
 import { eq, inArray } from "drizzle-orm";
 
-
 class OrganizationService {
   static async getAllMemberOrganizations(memberships: Member | Member[]) {
     const membershipArray = Array.isArray(memberships)
@@ -18,6 +17,13 @@ class OrganizationService {
   static async getActiveOrganization(organizationId: string) {
     return await db.query.organization.findFirst({
       where: eq(organization.id, organizationId),
+      with: {
+        members: {
+          with: {
+            user: true,
+          },
+        },
+      },
     });
   }
 

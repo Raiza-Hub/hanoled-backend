@@ -1,5 +1,4 @@
 import MemberService from "@/member/member.service.js";
-import { getUserSession } from "@/utils/getSession.js";
 import { NextFunction, Request, Response } from "express";
 import OrganizationService from "./organization.service.js";
 import { AppError } from "@/utils/appError.js";
@@ -13,7 +12,7 @@ export const getOrganizations = async (
   try {
     console.log("get organizations session");
 
-    const { user } = await getUserSession(req);
+    const user = req.user;
 
     const memberships = await MemberService.getAllMembers(user.id);
 
@@ -38,19 +37,22 @@ export const getActiveOrganization = async (
 ) => {
   try {
     console.log("get active organization session");
-    const { user } = await getUserSession(req);
 
-    const userId = user.id;
+    // const user = req.user;
 
-    const memberUser = await MemberService.getMember(userId);
+    // const userId = user.id;
 
-    if (!memberUser) {
-      return next(new AppError("There was an issue getting the member", 500));
-    }
+    // const memberUser = await MemberService.getMember(userId);
 
-    const activeOrganization = await OrganizationService.getActiveOrganization(
-      memberUser.organizationId
-    );
+    // if (!memberUser) {
+    //   return next(new AppError("There was an issue getting the member", 500));
+    // }
+
+    // const activeOrganization = await OrganizationService.getActiveOrganization(
+    //   memberUser.organizationId
+    // );
+
+    const activeOrganization = req.organization;
 
     res.status(200).json({ success: true, message: activeOrganization });
   } catch (err) {
@@ -66,15 +68,9 @@ export const getMember = async (
   try {
     console.log("get member session");
 
-    const { user } = await getUserSession(req);
+    const user = req.user;
 
-    const uniqueMember = await MemberService.getMember(user.id);
-
-    if (!uniqueMember) {
-      return next(new AppError("There was an issue getting the member", 500));
-    }
-
-    res.status(200).json({ success: true, message: uniqueMember });
+    res.status(200).json({ success: true, message: user });
   } catch (err) {
     next(err);
   }
@@ -112,57 +108,52 @@ export const getRoleInOrganization = async (
   next: NextFunction
 ) => {
   try {
-    const { user } = await getUserSession(req);
-    const memberUser = await MemberService.getMember(user.id);
+    const user = req.user;
 
-    if (!memberUser) {
-      return next(new AppError("There was an issue getting the member", 500));
-    }
-
-    res.status(200).json({ success: true, message: memberUser.role });
+    res.status(200).json({ success: true, message: user.role });
   } catch (err) {
     next(err);
   }
 };
 
-export const getUserSchoolRoles = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { user } = await getUserSession(req);
-    const userId = user.id;
+// export const getUserSchoolRoles = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const user = req.user;
+//     const userId = user.id;
 
-    const memberUser = await MemberService.getMember(userId);
+//     const memberUser = await MemberService.getMember(userId);
 
-    if (!memberUser) {
-      return next(new AppError("There was an issue getting the member", 500));
-    }
+//     if (!memberUser) {
+//       return next(new AppError("There was an issue getting the member", 500));
+//     }
 
-    //check if member(teacher/admin/owner/role)
-    const memberRecord = await MemberService.getMemberRecord(
-      userId,
-      memberUser.organizationId
-    );
+//     //check if member(teacher/admin/owner/role)
+//     const memberRecord = await MemberService.getMemberRecord(
+//       userId,
+//       memberUser.organizationId
+//     );
 
-    //check if parent
-    const parentRecord = await ParentService.getParentRecord(
-      userId,
-      memberUser.organizationId
-    );
+//     //check if parent
+//     const parentRecord = await ParentService.getParentRecord(
+//       userId,
+//       memberUser.organizationId
+//     );
 
-    const roles: string[] = [];
+//     const roles: string[] = [];
 
-    if (memberRecord) {
-      roles.push(memberRecord.role);
-    }
-    if (parentRecord) {
-      roles.push("parent");
-    }
+//     if (memberRecord) {
+//       roles.push(memberRecord.role);
+//     }
+//     if (parentRecord) {
+//       roles.push("parent");
+//     }
 
-    res.status(200).json({ success: true, message: roles });
-  } catch (err) {
-    next(err);
-  }
-};
+//     res.status(200).json({ success: true, message: roles });
+//   } catch (err) {
+//     next(err);
+//   }
+// };

@@ -2,10 +2,12 @@ import { relations } from "drizzle-orm";
 import {
   boolean,
   date,
+  integer,
   pgEnum,
   pgTable,
   text,
   timestamp,
+  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
 
@@ -17,15 +19,9 @@ export const user = pgTable("user", {
     .$defaultFn(() => false)
     .notNull(),
   image: text("image"),
-  createdAt: timestamp("created_at")
-    .$defaultFn(() => /* @__PURE__ */ new Date())
-    .notNull(),
-  updatedAt: timestamp("updated_at")
-    .$defaultFn(() => /* @__PURE__ */ new Date())
-    .notNull(),
-  lastActive: timestamp("last_active")
-    .$defaultFn(() => /* @__PURE__ */ new Date())
-    .notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
+  // lastActive: timestamp("last_active").notNull(),
 });
 
 export const session = pgTable("session", {
@@ -65,12 +61,8 @@ export const verification = pgTable("verification", {
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").$defaultFn(
-    () => /* @__PURE__ */ new Date()
-  ),
-  updatedAt: timestamp("updated_at").$defaultFn(
-    () => /* @__PURE__ */ new Date()
-  ),
+  createdAt: timestamp("created_at").notNull(),
+  updatedAt: timestamp("updated_at").notNull(),
 });
 
 export const organization = pgTable("organization", {
@@ -79,6 +71,7 @@ export const organization = pgTable("organization", {
   slug: text("slug").unique(),
   logo: text("logo"),
   metadata: text("metadata"),
+  userId: text("user_id"),
   createdAt: timestamp("created_at").notNull(),
 });
 
@@ -94,6 +87,7 @@ export const member = pgTable("member", {
     .references(() => user.id, { onDelete: "cascade" }),
   // role: text("role").default("member").notNull(),
   role: memberRole("role").default("member").notNull(),
+  isAssigned: boolean("is_assigned").default(false).notNull(),
   createdAt: timestamp("created_at").notNull(),
 });
 
@@ -125,7 +119,7 @@ export const parent = pgTable("parent", {
 
 
 export const classLevel = pgTable("class", {
-  id: text("id").primaryKey(),
+  id: uuid("id").defaultRandom().primaryKey(),
   memberId: text("member_id")
     .notNull()
     .references(() => member.id, { onDelete: "set null" }), 
@@ -134,12 +128,13 @@ export const classLevel = pgTable("class", {
     .references(() => organization.id, { onDelete: "cascade" }),
   level: text("level").notNull(),
   class: text("class").notNull(),
-  createdAt: timestamp("created_at").notNull(),
+  limit: integer("limit").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const subject = pgTable("subject", {
-  id: text("id").primaryKey(),
+  id: uuid("id").defaultRandom().primaryKey(),
   organizationId: text("organization_id")
     .notNull()
     .references(() => organization.id, { onDelete: "cascade" }),
@@ -154,7 +149,7 @@ export const subject = pgTable("subject", {
 export const genderEnum = pgEnum("gender", ["male", "female"]);
 
 export const student = pgTable("student", {
-  id: text("id").primaryKey(),
+  id: uuid("id").defaultRandom().primaryKey(),
   organizationId: text("organization_id")
     .notNull()
     .references(() => organization.id, { onDelete: "cascade" }),
@@ -167,11 +162,11 @@ export const student = pgTable("student", {
   guardianPhone: varchar("guardian_phone", { length: 11 }).notNull(),
   guardianEmail: text("guardian_email").notNull(),
   address: text("address").notNull(),
-  classLevel: text("class_level")
+  classLevel: uuid("class_level")
     .notNull()
     .references(() => classLevel.id, { onDelete: "cascade" }),
   admissionDate: date("admission_date").defaultNow().notNull(),
-  createdAt: timestamp("created_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
@@ -217,6 +212,8 @@ export type User = typeof user.$inferSelect;
 export type Session = typeof session.$inferSelect;
 
 export type Organization = typeof organization.$inferSelect;
+
+export type Subject = typeof subject.$inferSelect;
 
 export const schema = {
   user,
