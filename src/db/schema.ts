@@ -113,16 +113,16 @@ export const parent = pgTable("parent", {
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  studentId: text("student_ids").array().notNull(),
   role: text("role").default("parent").notNull(),
   createdAt: timestamp("created_at").notNull(),
 });
+
 
 export const classLevel = pgTable("class", {
   id: uuid("id").defaultRandom().primaryKey(),
   memberId: text("member_id")
     .notNull()
-    .references(() => member.id, { onDelete: "set null" }),
+    .references(() => member.id, { onDelete: "set null" }), 
   organizationId: text("organization_id")
     .notNull()
     .references(() => organization.id, { onDelete: "cascade" }),
@@ -140,9 +140,9 @@ export const subject = pgTable("subject", {
     .references(() => organization.id, { onDelete: "cascade" }),
   memberId: text("member_id")
     .notNull()
-    .references(() => member.id, { onDelete: "cascade" }),
+    .references(() => member.id, { onDelete: "cascade" }), 
   subjectName: varchar("subject_name", { length: 256 }).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

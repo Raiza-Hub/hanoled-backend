@@ -43,7 +43,10 @@ export const auth = betterAuth({
     },
     autoSignInAfterVerification: true,
   },
-  trustedOrigins: ["http:localhost:3000", "http:localhost:8000"],
+  trustedOrigins: [
+    "http://localhost:3000", // ✅ your Next.js frontend
+    "http://localhost:8000", // ✅ your backend (keep this too)
+  ],
   plugins: [
     organization({
       roles: {
