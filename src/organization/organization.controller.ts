@@ -1,8 +1,7 @@
-import MemberService from "@/member/member.service.js";
 import { NextFunction, Request, Response } from "express";
 import OrganizationService from "./organization.service.js";
 import { AppError } from "@/utils/appError.js";
-import ParentService from "@/parent/parent.service.js";
+import { IObject } from "@/admin/dto/dto.js";
 
 export const getOrganizations = async (
   req: Request,
@@ -12,16 +11,11 @@ export const getOrganizations = async (
   try {
     console.log("get organizations session");
 
-    const user = req.user;
+    const member = req.user;
+    const organizationId = member.organizationId;
 
-    const memberships = await MemberService.getAllMembers(user.id);
-
-    if (memberships.length == 0) {
-      return [];
-    }
-
-    const organization = await OrganizationService.getAllMemberOrganizations(
-      memberships
+    const organization = await OrganizationService.getAllOrganizations(
+      organizationId
     );
 
     res.status(200).json({ success: true, message: organization });
@@ -37,20 +31,6 @@ export const getActiveOrganization = async (
 ) => {
   try {
     console.log("get active organization session");
-
-    // const user = req.user;
-
-    // const userId = user.id;
-
-    // const memberUser = await MemberService.getMember(userId);
-
-    // if (!memberUser) {
-    //   return next(new AppError("There was an issue getting the member", 500));
-    // }
-
-    // const activeOrganization = await OrganizationService.getActiveOrganization(
-    //   memberUser.organizationId
-    // );
 
     const activeOrganization = req.organization;
 
@@ -84,17 +64,14 @@ export const getOrganizationBySlug = async (
   try {
     console.log("get slug organization session");
 
+    const member = req.user;
     const { slug } = req.params;
+    const organizationId: string = member.organizationId;
 
     const organizationBySlug = await OrganizationService.getOrganizationBySlug(
+      organizationId,
       slug
     );
-
-    if (!organizationBySlug) {
-      return next(
-        new AppError(`There is no organization with the slug ${slug}`, 400)
-      );
-    }
 
     res.status(200).json({ success: true, message: organizationBySlug });
   } catch (err) {

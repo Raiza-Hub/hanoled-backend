@@ -17,7 +17,7 @@ export const isAdmin = async (
     // }
 
     console.log(memberUser);
-    if (memberUser.role !== "owner") {
+    if (memberUser.role !== "owner" || "admin") {
       return next(
         new AppError("You dont have permission to access this endpoint", 401)
       );

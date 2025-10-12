@@ -1,17 +1,11 @@
 import { db } from "@/db/db.js";
 import { Member, organization } from "@/db/schema.js";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 
 class OrganizationService {
-  static async getAllMemberOrganizations(memberships: Member | Member[]) {
-    const membershipArray = Array.isArray(memberships)
-      ? memberships
-      : [memberships];
+  static async getAllOrganizations(organizationId: string) {
     return await db.query.organization.findMany({
-      where: inArray(
-        organization.id,
-        membershipArray.map((m: Member) => m.organizationId)
-      ),
+      where: eq(organization.id, organizationId),
     });
   }
   static async getActiveOrganization(organizationId: string) {
@@ -27,9 +21,24 @@ class OrganizationService {
     });
   }
 
-  static async getOrganizationBySlug(slug: string) {
+  // static async getOrganizationBySlug(slug: string) {
+  //   return await db.query.organization.findFirst({
+  //     where: eq(organization.slug, slug),
+  //     with: {
+  //       members: {
+  //         with: {
+  //           user: true,
+  //         },
+  //       },
+  //     },
+  //   });
+  // }
+  static async getOrganizationBySlug(organizationId: string, slug: string) {
     return await db.query.organization.findFirst({
-      where: eq(organization.slug, slug),
+      where: and(
+        eq(organization.id, organizationId),
+        eq(organization.slug, slug)
+      ),
       with: {
         members: {
           with: {

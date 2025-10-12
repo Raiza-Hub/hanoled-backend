@@ -2,7 +2,11 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { customSession, openAPI, organization } from "better-auth/plugins";
 import { db } from "@/db/db.js";
-import { EmailOptions, sendEmail } from "@/utils/mailer.js";
+import {
+  EmailVerificationOptions,
+  sendEmail,
+  sendEmailVerification,
+} from "@/utils/mailer.js";
 import UserService from "@/user/user.service.js";
 import { admin, member, owner, parent } from "./validators/permissions.js";
 import { getUserRoles } from "@/utils/getUserRoles.js";
@@ -27,12 +31,12 @@ export const auth = betterAuth({
   },
   emailVerification: {
     sendVerificationEmail: async ({ user, url, token }, request) => {
-      const data: EmailOptions = {
-        email: user.email,
+      const data: EmailVerificationOptions = {
+        to: user.email,
         subject: "Verify your email address",
-        message: `Click the link to verify your email address: ${url}`,
+        text: `Click the link to verify your email address: ${url}`,
       };
-      await sendEmail(data);
+      await sendEmailVerification(data);
     },
     sendOnSignUp: true,
     async afterEmailVerification(user, request) {
@@ -43,7 +47,7 @@ export const auth = betterAuth({
     },
     autoSignInAfterVerification: true,
   },
-  trustedOrigins: ["http:localhost:3000", "http:localhost:8000"],
+  trustedOrigins: ["http:localhost:3000", "http:localhost:1948"],
   plugins: [
     organization({
       roles: {
@@ -51,6 +55,16 @@ export const auth = betterAuth({
         admin,
         member,
         parent,
+      },
+      async sendInvitationEmail(data) {
+        const inviteLink = `http://localhost:3000/accept-invitation/${data.id}`;
+        await sendEmail({
+          email: data.email,
+          invitedByUsername: data.inviter.user.name,
+          invitedByEmail: data.inviter.user.email,
+          teamName: data.organization.name,
+          inviteLink,
+        });
       },
     }),
     customSession(async ({ user, session }) => {

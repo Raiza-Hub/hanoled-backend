@@ -23,7 +23,7 @@ router.get(
 
 router.get("/member", getSession, getMember);
 
-router.get("/userOrganization/:slug", getOrganizationBySlug);
+router.get("/userOrganization/:slug", getSession, getOrganizationBySlug);
 
 router.get("/organizationRole", getSession, getRoleInOrganization);
 
