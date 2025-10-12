@@ -15,7 +15,7 @@ export const validate_password = ()=>{
     return {
         id: "validate-password-endpoint",
           endpoints: {
-            getHelloWorld: createAuthEndpoint("/my-plugin/validate-current-password", {
+            validateCurrentPassword: createAuthEndpoint("/auth/validate-current-password", {
                 method: "POST",
                 use: [sessionMiddleware], 
             }, async(ctx) => {
