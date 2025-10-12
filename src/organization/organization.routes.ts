@@ -24,7 +24,7 @@ router.get(
 
 router.get("/member", getSession, getMember);
 
-router.get("/userOrganization/:slug", getUserRole, getOrganizationBySlug);
+router.get("/userOrganization/:slug", getSession, getUserRole, getOrganizationBySlug);
 
 router.get("/organizationRole", getSession, getRoleInOrganization);
 
