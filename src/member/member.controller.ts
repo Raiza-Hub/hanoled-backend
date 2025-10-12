@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import AdminService from "@/admin/admin.service.js";
-import { Subject } from "@/db/schema.js";
+import { Organization, Subject } from "@/db/schema.js";
 
 export const getAllSubjects = async (
   req: Request,
@@ -8,10 +8,10 @@ export const getAllSubjects = async (
   next: NextFunction
 ) => {
   try {
-    const activeOrganization = req.organization;
+    const activeOrganization: Organization = req.organization;
 
     const organizationSubjects = await AdminService.getOrganizationSubjects(
-      activeOrganization.id as string
+      activeOrganization.id
     );
 
     const subjects = organizationSubjects.map((s: Subject) => s.subjectName);
@@ -28,7 +28,7 @@ export const getAllOrganizationClasses = async (
   next: NextFunction
 ) => {
   try {
-    const organization = req.organization;
+    const organization: Organization = req.organization;
 
     const organizationClasses = await AdminService.getOrganizationClasses(
       organization.id
