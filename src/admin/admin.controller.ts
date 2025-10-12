@@ -1,7 +1,7 @@
+import { Organization, Subject } from "@/db/schema.js";
 import { AppError } from "@/utils/appError.js";
 import { NextFunction, Request, Response } from "express";
 import AdminService from "./admin.service.js";
-import { member, Organization, student, Subject } from "@/db/schema.js";
 
 export const getAllSubjects = async (
   req: Request,
@@ -11,11 +11,15 @@ export const getAllSubjects = async (
   try {
     console.log("getting organization subjects");
 
-    const activeOrganization = req.organization;
+    const activeOrganization: Organization = req.organization;
 
     const organizationSubjects = await AdminService.getOrganizationSubjects(
-      activeOrganization.id as string
+      activeOrganization.id
     );
+
+    if (organizationSubjects.length === 0) {
+      return res.status(200).json({ success: true, message: [] });
+    }
 
     const subjects = organizationSubjects.map((s: Subject) => s.subjectName);
 
@@ -31,7 +35,7 @@ export const createNewSubject = async (
   next: NextFunction
 ) => {
   try {
-    const activeOrganization = req.organization;
+    const activeOrganization: Organization = req.organization;
 
     const { subjectName, memberId } = req.body;
 
@@ -67,7 +71,7 @@ export const createNewClass = async (
   try {
     const { className, level, memberId, limit } = req.body;
 
-    const organization = req.organization;
+    const organization: Organization = req.organization;
 
     const classExists = await AdminService.getOrganizationClass(
       organization.id,
@@ -103,14 +107,14 @@ export const getAllOrganizationClasses = async (
   next: NextFunction
 ) => {
   try {
-    const organization = req.organization;
+    const organization: Organization = req.organization;
 
     const organizationClasses = await AdminService.getOrganizationClasses(
       organization.id
     );
 
     if (organizationClasses.length === 0) {
-      return [];
+      return res.status(200).json({ success: true, message: [] });
     }
 
     res.status(200).json({ success: true, message: organizationClasses });
@@ -125,7 +129,7 @@ export const createStudent = async (
   next: NextFunction
 ) => {
   try {
-    const organization = req.organization;
+    const organization: Organization = req.organization;
     const organizationId = organization.id;
     const {
       firstName,
@@ -174,13 +178,14 @@ export const createStudent = async (
     next(err);
   }
 };
+
 export const getAllMembers = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const organization = req.organization;
+    const organization: Organization = req.organization;
 
     const getAllMembers = await AdminService.getOrganizationMembers(
       organization.id
