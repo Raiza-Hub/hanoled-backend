@@ -20,7 +20,7 @@ export const getUserRole = async (
         const memberUser = await MemberService.getMember(userId);
 
         if (!memberUser) {
-            return next(new AppError("There was an issue getting the member", 500));
+           return next(new AppError("Member not found", 404));
         }
 
         // Check if member (teacher/admin/owner/role)
