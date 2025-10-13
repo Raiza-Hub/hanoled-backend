@@ -1,6 +1,7 @@
 import { db } from "@/db/db.js";
 import { classLevel, member, parent, student, subject } from "@/db/schema.js";
 import { and, eq } from "drizzle-orm";
+import { IClass, IStudent, ISubject } from "./dto/dto.js";
 
 class AdminService {
   static async getOrganizationSubjects(organizationId: string) {
@@ -8,7 +9,7 @@ class AdminService {
       where: eq(subject.organizationId, organizationId),
     });
   }
-  static async createSubject(data: any) {
+  static async createSubject(data: ISubject) {
     //any
     return await db.insert(subject).values(data).returning();
   }
@@ -36,7 +37,7 @@ class AdminService {
       ),
     });
   }
-  static async createClass(data: any) {
+  static async createClass(data: IClass) {
     return await db.insert(classLevel).values(data).returning();
   }
   static async updateMember(memberId: string, data: boolean) {
@@ -59,13 +60,16 @@ class AdminService {
       ),
     });
   }
-  static async createStudent(data: any) {
+  static async createStudent(data: IStudent) {
     return await db.insert(student).values(data).returning();
   }
 
   static async getOrganizationMembers(organizationId: string) {
     return await db.query.member.findMany({
       where: eq(member.organizationId, organizationId),
+      with: {
+        user: true,
+      },
     });
   }
   static async getOrganizationParents(organizationId: string) {

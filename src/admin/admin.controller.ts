@@ -1,7 +1,8 @@
 import { AppError } from "@/utils/appError.js";
 import { NextFunction, Request, Response } from "express";
 import AdminService from "./admin.service.js";
-import { member, Organization, student, Subject } from "@/db/schema.js";
+import { Subject } from "@/db/schema.js";
+import { IStudent } from "./dto/dto.js";
 
 export const getAllSubjects = async (
   req: Request,
@@ -32,8 +33,10 @@ export const createNewSubject = async (
 ) => {
   try {
     const activeOrganization = req.organization;
+    const member = req.user;
+    const memberId = member.id;
 
-    const { subjectName, memberId } = req.body;
+    const { subjectName } = req.body;
 
     //check if subject already exists
     const subjectExists = await AdminService.getOrganizationSubject(
@@ -152,7 +155,7 @@ export const createStudent = async (
     if (studentExists) {
       return next(new AppError("This student already exists", 400));
     }
-    const studentData = {
+    const studentData: IStudent = {
       organizationId,
       firstName,
       lastName,
