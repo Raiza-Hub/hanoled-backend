@@ -12,6 +12,8 @@ import memberRoutes from "./member/member.routes.js";
 const app = express();
 const port = process.env.PORT;
 
+
+
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -21,6 +23,7 @@ app.use(
 );
 
 app.all("/api/auth/{*splat}", toNodeHandler(auth));
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
