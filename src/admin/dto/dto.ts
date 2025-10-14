@@ -42,3 +42,15 @@ export interface IObject {
     image: string | null;
   };
 }
+
+export interface IOtp {
+  otp: string;
+  email: string;
+  expiresAt: string;
+}
+
+export interface IUser {
+  name: string;
+  email: string;
+  password: string;
+}
