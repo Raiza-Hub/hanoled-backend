@@ -142,9 +142,9 @@ export const subject = pgTable("subject", {
     .references(() => organization.id, { onDelete: "cascade" }),
   memberId: uuid("member_id")
     .notNull()
-    .references(() => member.id, { onDelete: "cascade" }),
+    .references(() => member.id, { onDelete: "cascade" }), 
   subjectName: varchar("subject_name", { length: 256 }).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 

@@ -13,6 +13,8 @@ import authRoutes from "./auth/auth.routes.js";
 const app = express();
 const port = process.env.PORT;
 
+
+
 app.use(
   cors({
     origin: "http://localhost:3000",
