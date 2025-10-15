@@ -1,20 +1,41 @@
 import express, { Router } from "express";
 import {
+  createStudent,
   getAllOrganizationClasses,
   getAllSubjects,
 } from "./member.controller.js";
 import { getSession } from "@/middleware/getMemberSession.js";
-import { activeOrganization } from "@/middleware/currentOrganization.js";
+import { refreshAccessToken } from "@/middleware/refreshToken.js";
+import { verifyJwt } from "@/middleware/getUserSession.js";
+import { isVerified } from "@/middleware/isVerified.js";
 
 const router: Router = express.Router();
 
-router.get("/subjects", getSession, activeOrganization, getAllSubjects);
+router.get(
+  "/subjects/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  getAllSubjects
+);
 
 router.get(
-  "/classes",
+  "/classes/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
   getSession,
-  activeOrganization,
   getAllOrganizationClasses
+);
+
+router.post(
+  "/create/student/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  createStudent
 );
 
 export default router;

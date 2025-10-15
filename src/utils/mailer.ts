@@ -12,12 +12,12 @@ export interface EmailOptions {
   inviteLink: string;
 }
 export interface EmailVerificationOptions {
-  to: string;
+  email: string;
   subject: string;
-  text: string;
+  message: string;
 }
 
-console.log(process.env.USER_NAME, process.env.USER_MAIL);
+// console.log(process.env.USER_NAME, process.env.USER_MAIL);
 
 export const sendEmail = async (options: EmailOptions) => {
   const subject = `Invitation to join ${options.teamName};`;
@@ -32,7 +32,7 @@ export const sendEmail = async (options: EmailOptions) => {
   Best regards,
   The Team`;
   const { data, error } = await resend.emails.send({
-    from: "Acme <onboarding@resend.dev>",
+    from: `${process.env.USER_MAIL}`,
     to: options.email,
     subject: subject.trim(),
     text: text.trim(),
@@ -49,10 +49,10 @@ export const sendEmailVerification = async (
   options: EmailVerificationOptions
 ) => {
   const { data, error } = await resend.emails.send({
-    from: "Acme <onboarding@resend.dev>",
-    to: options.to,
+    from: `${process.env.USER_MAIL}`,
+    to: options.email,
     subject: options.subject.trim(),
-    text: options.text.trim(),
+    text: options.message.trim(),
   });
 
   if (error) {
