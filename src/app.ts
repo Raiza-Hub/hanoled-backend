@@ -3,11 +3,10 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import { errorHandler } from "./middleware/errorHandler.js";
-// import { toNodeHandler } from "better-auth/node";
-// import { auth } from "./lib/auth.js";
-// import organizationRoutes from "./organization/organization.routes.js";
-// import adminRoutes from "./admin/admin.routes.js";
-// import memberRoutes from "./member/member.routes.js";
+import organizationRoutes from "./organization/organization.routes.js";
+import adminRoutes from "./admin/admin.routes.js";
+import memberRoutes from "./member/member.routes.js";
+import userRoutes from "./user/user.routes.js";
 import cookieParser from "cookie-parser";
 import authRoutes from "./auth/auth.routes.js";
 
@@ -29,9 +28,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use("/api/auth", authRoutes);
-// app.use("/api/organization", organizationRoutes);
-// app.use("/api/admin", adminRoutes);
-// app.use("/api/member", memberRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/organization", organizationRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/member", memberRoutes);
 
 app.use(errorHandler);
 

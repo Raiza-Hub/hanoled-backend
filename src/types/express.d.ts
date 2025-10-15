@@ -13,4 +13,14 @@ declare global {
       organization?: any;
     }
   }
+  namespace Express {
+    interface Request {
+      member?: any;
+    }
+  }
+  namespace Express {
+    interface Request {
+      role?: any;
+    }
+  }
 }

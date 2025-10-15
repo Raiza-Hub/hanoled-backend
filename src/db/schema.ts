@@ -52,17 +52,17 @@ export const account = pgTable("account", {
   refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
   scope: text("scope"),
   password: text("password"),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const verification = pgTable("verification", {
   id: uuid("id").defaultRandom().primaryKey(),
   identifier: text("identifier").notNull(),
   value: text("value").notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  expiresAt: timestamp("expires_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const organization = pgTable("organization", {
@@ -71,7 +71,7 @@ export const organization = pgTable("organization", {
   slug: text("slug").unique(),
   logo: text("logo"),
   metadata: text("metadata"),
-  createdAt: timestamp("created_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const memberRole = pgEnum("role", ["member", "owner", "admin"]);
@@ -87,8 +87,11 @@ export const member = pgTable("member", {
   // role: text("role").default("member").notNull(),
   role: memberRole("role").default("member").notNull(),
   isAssigned: boolean("is_assigned").default(false).notNull(),
-  createdAt: timestamp("created_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const inviteRole = pgEnum("role", ["member", "parent", "admin"]);
+export const status = pgEnum("status", ["pending", "success", "failed"]);
 
 export const invitation = pgTable("invitation", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -96,12 +99,12 @@ export const invitation = pgTable("invitation", {
     .notNull()
     .references(() => organization.id, { onDelete: "cascade" }),
   email: text("email").notNull(),
-  role: text("role"),
-  status: text("status").default("pending").notNull(),
-  expiresAt: timestamp("expires_at").notNull(),
+  role: inviteRole("role").default("member").notNull(),
+  status: status("status").default("pending").notNull(),
+  expiresAt: date("expires_at").notNull(),
   inviterId: uuid("inviter_id")
     .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
+    .references(() => member.id, { onDelete: "cascade" }),
 });
 
 export const parent = pgTable("parent", {
@@ -112,12 +115,12 @@ export const parent = pgTable("parent", {
   userId: uuid("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  studentId: text("student_ids").array().notNull(),
+  studentId: uuid("student_ids").array().notNull().default([]),
   role: text("role").default("parent").notNull(),
-  createdAt: timestamp("created_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const classLevel = pgTable("class", {
+export const classLevel = pgTable("classLevel", {
   id: uuid("id").defaultRandom().primaryKey(),
   memberId: uuid("member_id")
     .notNull()
@@ -195,6 +198,18 @@ export const studentRelations = relations(student, ({ many, one }) => ({
   subject: many(subject),
   member: many(member),
   parent: many(parent),
+}));
+
+export const parentRelations = relations(parent, ({ many, one }) => ({
+  student: many(student),
+  user: one(user, {
+    fields: [parent.userId],
+    references: [user.id],
+  }),
+  organization: one(organization, {
+    fields: [parent.organizationId],
+    references: [organization.id],
+  }),
 }));
 
 export const usersRelations = relations(user, ({ many }) => ({

@@ -1,5 +1,6 @@
+import { IMember, IParent } from "@/admin/dto/dto.js";
 import { db } from "@/db/db.js";
-import { member } from "@/db/schema.js";
+import { member, parent } from "@/db/schema.js";
 import { and, eq } from "drizzle-orm";
 
 class MemberService {
@@ -11,9 +12,13 @@ class MemberService {
       },
     });
   }
-  static async getMember(userId: string) {
+
+  static async getSpecificMember(userId: string, organizationId: string) {
     return await db.query.member.findFirst({
-      where: eq(member.userId, userId),
+      where: and(
+        eq(member.userId, userId),
+        eq(member.organizationId, organizationId)
+      ),
     });
   }
 
@@ -25,6 +30,14 @@ class MemberService {
       ),
       columns: { role: true },
     });
+  }
+
+  static async createMember(data: IMember | IParent) {
+    if ("isAssigned" in data) {
+      return await db.insert(member).values(data).returning();
+    } else if ("studentId" in data) {
+      return await db.insert(parent).values(data).returning();
+    }
   }
 }
 

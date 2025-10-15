@@ -8,22 +8,16 @@ export const isAdmin = async (
   next: NextFunction
 ) => {
   try {
-    const memberUser = req.user
+    const member = req.member;
 
-    // const memberUser = await MemberService.getMember(userId);
-
-    // if (!memberUser) {
-    //   return next(new AppError("There was an issue getting the member", 500));
-    // }
-
-    console.log(memberUser);
-    if (memberUser.role !== "owner" || "admin") {
-      return next(
-        new AppError("You dont have permission to access this endpoint", 401)
-      );
+    console.log(member);
+    if (member.role !== "owner") {
+      if (member.role !== "admin") {
+        return next(
+          new AppError("You dont have permission to access this endpoint", 401)
+        );
+      }
     }
-
-    req.user = memberUser;
     next();
   } catch (err) {
     return next(err);

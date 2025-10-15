@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import OrganizationService from "./organization.service.js";
 import { AppError } from "@/utils/appError.js";
-import { IObject } from "@/admin/dto/dto.js";
+import { IMember, IOrganization } from "@/admin/dto/dto.js";
+import MemberService from "@/member/member.service.js";
+import { member, Organization } from "@/db/schema.js";
 
 export const getOrganizations = async (
   req: Request,
@@ -11,7 +13,7 @@ export const getOrganizations = async (
   try {
     console.log("get organizations session");
 
-    const member = req.user;
+    const member = req.member;
     const organizationId = member.organizationId;
 
     const organization = await OrganizationService.getAllOrganizations(
@@ -48,9 +50,9 @@ export const getMember = async (
   try {
     console.log("get member session");
 
-    const user = req.user;
+    const member = req.member;
 
-    res.status(200).json({ success: true, message: user });
+    res.status(200).json({ success: true, message: member });
   } catch (err) {
     next(err);
   }
@@ -64,7 +66,7 @@ export const getOrganizationBySlug = async (
   try {
     console.log("get slug organization session");
 
-    const member = req.user;
+    const member = req.member;
     const { slug } = req.params;
     const organizationId: string = member.organizationId;
 
@@ -79,58 +81,61 @@ export const getOrganizationBySlug = async (
   }
 };
 
-export const getRoleInOrganization = async (
+export const createOrganization = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
+    const { name, slug, logo, metadata } = req.body;
     const user = req.user;
 
-    res.status(200).json({ success: true, message: user.role });
+    //check if organization exists
+    const organizationExists = await OrganizationService.getOrganization(
+      name,
+      slug
+    );
+
+    if (organizationExists) {
+      return next(new AppError("This organization already exists", 400));
+    }
+
+    const orgData: IOrganization = {
+      name,
+      slug,
+      logo,
+      metadata,
+    };
+    const [newOrganization] = await OrganizationService.createOrganization(
+      orgData
+    );
+
+    //create correspondng member
+    const memberData: IMember = {
+      organizationId: newOrganization.id,
+      userId: user.id,
+      role: "owner",
+      isAssigned: true,
+    };
+    const member = await MemberService.createMember(memberData);
+
+    res.status(200).json({ sucess: true, message: newOrganization });
   } catch (err) {
     next(err);
   }
 };
 
-// export const getUserSchoolRoles = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const user = req.user;
-//     const userId = user.id;
+export const getSlug = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const organizations = await OrganizationService.findAllOrganization();
+    const organizationSlug = organizations.map((m: Organization) => m.slug);
 
-//     const memberUser = await MemberService.getMember(userId);
-
-//     if (!memberUser) {
-//       return next(new AppError("There was an issue getting the member", 500));
-//     }
-
-//     //check if member(teacher/admin/owner/role)
-//     const memberRecord = await MemberService.getMemberRecord(
-//       userId,
-//       memberUser.organizationId
-//     );
-
-//     //check if parent
-//     const parentRecord = await ParentService.getParentRecord(
-//       userId,
-//       memberUser.organizationId
-//     );
-
-//     const roles: string[] = [];
-
-//     if (memberRecord) {
-//       roles.push(memberRecord.role);
-//     }
-//     if (parentRecord) {
-//       roles.push("parent");
-//     }
-
-//     res.status(200).json({ success: true, message: roles });
-//   } catch (err) {
-//     next(err);
-//   }
-// };
+    res.status(200).json({ message: organizationSlug });
+  } catch (err) {
+    next(err);
+  }
+};

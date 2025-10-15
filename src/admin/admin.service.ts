@@ -1,7 +1,14 @@
 import { db } from "@/db/db.js";
-import { classLevel, member, parent, student, subject } from "@/db/schema.js";
+import {
+  classLevel,
+  invitation,
+  member,
+  parent,
+  student,
+  subject,
+} from "@/db/schema.js";
 import { and, eq } from "drizzle-orm";
-import { IClass, IStudent, ISubject } from "./dto/dto.js";
+import { IClass, IInvite, IStudent, ISubject, status } from "./dto/dto.js";
 
 class AdminService {
   static async getOrganizationSubjects(organizationId: string) {
@@ -75,6 +82,23 @@ class AdminService {
   static async getOrganizationParents(organizationId: string) {
     return await db.query.parent.findMany({
       where: eq(parent.organizationId, organizationId),
+      with: {
+        student: true
+      }
+    });
+  }
+  static async createInvite(data: IInvite) {
+    return await db.insert(invitation).values(data).returning();
+  }
+  static async updateInvite(email: string, data: status) {
+    return await db
+      .update(invitation)
+      .set({ status: data })
+      .where(eq(invitation.email, email));
+  }
+  static async findInvite(email: string) {
+    return await db.query.invitation.findFirst({
+      where: eq(invitation.email, email),
     });
   }
 }

@@ -1,4 +1,3 @@
-import { activeOrganization } from "@/middleware/currentOrganization.js";
 import { getSession } from "@/middleware/getMemberSession.js";
 import { isAdmin } from "@/middleware/isAdmin.js";
 import express, { Router } from "express";
@@ -11,71 +10,101 @@ import {
   getUnassignedMembers,
   getAllMembers,
   getAllParents,
+  inviteMember,
 } from "./admin.controller.js";
+import { refreshAccessToken } from "@/middleware/refreshToken.js";
+import { verifyJwt } from "@/middleware/getUserSession.js";
+import { isVerified } from "@/middleware/isVerified.js";
 
 const router: Router = express.Router();
 
 router.get(
-  "/subjects",
+  "/subjects/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
   getSession,
   isAdmin,
-  activeOrganization,
   getAllSubjects
 );
 
 router.post(
-  "/create/subject",
+  "/create/subject/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
   getSession,
   isAdmin,
-  activeOrganization,
   createNewSubject
 );
 
 router.post(
-  "/create/class",
+  "/create/class/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
   getSession,
   isAdmin,
-  activeOrganization,
   createNewClass
 );
 
 router.get(
-  "/classes",
+  "/classes/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
   getSession,
   isAdmin,
-  activeOrganization,
   getAllOrganizationClasses
 );
 
 router.post(
-  "/create/student",
+  "/create/student/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
   getSession,
   isAdmin,
-  activeOrganization,
   createStudent
 );
 
 router.get(
-  "/get/unassignedMember",
+  "/get/unassignedMember/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
   getSession,
   isAdmin,
-  activeOrganization,
   getUnassignedMembers
 );
 
 router.get(
-  "/get/members",
+  "/get/members/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
   getSession,
   isAdmin,
-  activeOrganization,
   getAllMembers
 );
 router.get(
-  "/get/parents",
+  "/get/parents/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
   getSession,
   isAdmin,
-  activeOrganization,
   getAllParents
+);
+
+router.post(
+  "/member/invite/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  isAdmin,
+  inviteMember
 );
 
 export default router;
