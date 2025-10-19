@@ -186,7 +186,12 @@ export const createStudent = async (
       admissionDate,
     };
 
+    const organizationStudentNo = organization.studentNo + 1;
     const newStudent = await AdminService.createStudent(studentData);
+    await AdminService.updateOrganizationStudent(
+      organization.slug,
+      organizationStudentNo
+    );
 
     res.status(200).json({ success: true, message: newStudent });
   } catch (err) {

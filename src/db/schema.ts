@@ -3,6 +3,7 @@ import {
   boolean,
   date,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   text,
@@ -10,6 +11,7 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+import { cacheTag } from "next/dist/server/use-cache/cache-tag.js";
 
 export const user = pgTable("user", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -65,11 +67,37 @@ export const verification = pgTable("verification", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const categoryEnum = pgEnum("category", [
+  "primary",
+  "secondary",
+  "tertiary",
+]);
+
+export const schoolType = pgEnum("school_type", ["public", "private"]);
+
 export const organization = pgTable("organization", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
-  slug: text("slug").unique(),
-  logo: text("logo"),
+  slug: text("slug").unique().notNull(),
+  Logo: text("logo").notNull(),
+  email: text("email").notNull().unique(),
+  country: text("country").notNull(),
+  address: text("address").notNull(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  zipCode: text("zip_code").notNull(),
+  studentNo: integer("student_number").default(0).notNull(),
+  teacherNo: integer("teacher_no").default(0).notNull(),
+  parentNo: integer("parent_no").default(0).notNull(),
+  category: categoryEnum("category").notNull(),
+  schoolType: schoolType("school_type").notNull(),
+  website: text("website"),
+  socialLinks: jsonb("social_links")
+    .$type<
+      { type: "facebook" | "instagram" | "twitter" | "linkedin"; url: string }[]
+    >()
+    .default([]),
+  paymentStatus: boolean("payment_status").default(false).notNull(),
   metadata: text("metadata"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

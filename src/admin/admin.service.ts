@@ -3,6 +3,7 @@ import {
   classLevel,
   invitation,
   member,
+  organization,
   parent,
   student,
   subject,
@@ -83,8 +84,8 @@ class AdminService {
     return await db.query.parent.findMany({
       where: eq(parent.organizationId, organizationId),
       with: {
-        student: true
-      }
+        student: true,
+      },
     });
   }
   static async createInvite(data: IInvite) {
@@ -100,6 +101,24 @@ class AdminService {
     return await db.query.invitation.findFirst({
       where: eq(invitation.email, email),
     });
+  }
+  static async updateOrganizationMember(slug: string, data: number) {
+    return await db
+      .update(organization)
+      .set({ teacherNo: data })
+      .where(eq(organization.slug, slug));
+  }
+  static async updateOrganizationParent(slug: string, data: number) {
+    return await db
+      .update(organization)
+      .set({ parentNo: data })
+      .where(eq(organization.slug, slug));
+  }
+  static async updateOrganizationStudent(slug: string, data: number) {
+    return await db
+      .update(organization)
+      .set({ studentNo: data })
+      .where(eq(organization.slug, slug));
   }
 }
 

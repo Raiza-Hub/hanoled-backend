@@ -55,11 +55,30 @@ export interface IUser {
   password: string;
 }
 
+export type schoolCategory = "primary" | "secondary" | "tertiary";
+export type schoolType = "public" | "private";
+
 export interface IOrganization {
   name: string;
   slug: string;
   logo: string;
   metadata: string;
+  email: string;
+  country: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  studentNo: number;
+  teacherNo: number;
+  parentNo: number;
+  schoolCategory: "primary" | "secondary" | "tertiary";
+  schoolType: "public" | "private";
+  website: string;
+  socialLinks: {
+    type: "facebook" | "instagram" | "twitter" | "linkedin";
+    url: string;
+  }[];
 }
 
 export interface IMember {

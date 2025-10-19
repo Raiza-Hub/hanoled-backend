@@ -81,13 +81,32 @@ export const getOrganizationBySlug = async (
   }
 };
 
+
 export const createOrganization = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
-    const { name, slug, logo, metadata } = req.body;
+    const {
+      name,
+      slug,
+      logo,
+      metadata,
+      email,
+      country,
+      address,
+      city,
+      state,
+      zipCode,
+      studentNo,
+      teacherNo,
+      parentNo,
+      schoolCategory,
+      schoolType,
+      website,
+      socialLinks,
+    } = req.body;
     const user = req.user;
 
     //check if organization exists
@@ -105,6 +124,19 @@ export const createOrganization = async (
       slug,
       logo,
       metadata,
+      email,
+      country,
+      address,
+      city,
+      state,
+      zipCode,
+      studentNo,
+      teacherNo,
+      parentNo,
+      schoolCategory,
+      schoolType,
+      website,
+      socialLinks,
     };
     const [newOrganization] = await OrganizationService.createOrganization(
       orgData

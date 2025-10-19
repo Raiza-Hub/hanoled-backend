@@ -49,8 +49,13 @@ export const inviteeDecision = async (
           role: "member",
           isAssigned: false,
         };
+        const organizationMemberNo = organization.teacherNo + 1;
         await MemberService.createMember(memberData);
         await AdminService.updateInvite(user.email, "success");
+        await AdminService.updateOrganizationMember(
+          organization.slug,
+          organizationMemberNo
+        );
         return res
           .status(200)
           .json({ success: true, message: `Welcome to ${organization.name}` });
@@ -67,8 +72,13 @@ export const inviteeDecision = async (
           studentId: normalizedStudentIds,
           role: "parent",
         };
+        const organizationParentNo = organization.parentNo + 1;
         await MemberService.createMember(memberData);
         await AdminService.updateInvite(user.email, "success");
+        await AdminService.updateOrganizationParent(
+          organization.slug,
+          organizationParentNo
+        );
         return res
           .status(200)
           .json({ success: true, message: `Welcome to ${organization.name}` });

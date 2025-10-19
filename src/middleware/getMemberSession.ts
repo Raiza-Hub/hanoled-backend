@@ -24,6 +24,14 @@ export const getSession = async (
     if (!organization) {
       return next(new AppError("This organization does not exist", 400));
     }
+    if (organization.paymentStatus == false) {
+      return next(
+        new AppError(
+          "You cant access this endpoint please register you organization",
+          400
+        )
+      );
+    }
 
     const memberUser = await MemberService.getSpecificMember(
       session.id,
