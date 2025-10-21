@@ -75,11 +75,12 @@ export const categoryEnum = pgEnum("category", [
 
 export const schoolType = pgEnum("school_type", ["public", "private"]);
 
+
 export const organization = pgTable("organization", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
   slug: text("slug").unique().notNull(),
-  Logo: text("logo").notNull(),
+  logo: text("logo").notNull(),
   email: text("email").notNull().unique(),
   country: text("country").notNull(),
   address: text("address").notNull(),

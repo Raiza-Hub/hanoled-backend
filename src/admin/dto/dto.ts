@@ -69,10 +69,7 @@ export interface IOrganization {
   city: string;
   state: string;
   zipCode: string;
-  studentNo: number;
-  teacherNo: number;
-  parentNo: number;
-  schoolCategory: "primary" | "secondary" | "tertiary";
+  category: "primary" | "secondary" | "tertiary";
   schoolType: "public" | "private";
   website: string;
   socialLinks: {

@@ -81,7 +81,6 @@ export const getOrganizationBySlug = async (
   }
 };
 
-
 export const createOrganization = async (
   req: Request,
   res: Response,
@@ -99,10 +98,7 @@ export const createOrganization = async (
       city,
       state,
       zipCode,
-      studentNo,
-      teacherNo,
-      parentNo,
-      schoolCategory,
+      category,
       schoolType,
       website,
       socialLinks,
@@ -130,10 +126,7 @@ export const createOrganization = async (
       city,
       state,
       zipCode,
-      studentNo,
-      teacherNo,
-      parentNo,
-      schoolCategory,
+      category,
       schoolType,
       website,
       socialLinks,
