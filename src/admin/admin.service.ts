@@ -91,15 +91,19 @@ class AdminService {
   static async createInvite(data: IInvite) {
     return await db.insert(invitation).values(data).returning();
   }
-  static async updateInvite(email: string, data: status) {
+  static async updateInvite(
+    email: string,
+    role: "member" | "parent" | "admin",
+    data: status
+  ) {
     return await db
       .update(invitation)
       .set({ status: data })
-      .where(eq(invitation.email, email));
+      .where(and(eq(invitation.email, email), eq(invitation.role, role)));
   }
-  static async findInvite(email: string) {
+  static async findInvite(email: string, role: "member" | "parent" | "admin") {
     return await db.query.invitation.findFirst({
-      where: eq(invitation.email, email),
+      where: and(eq(invitation.email, email), eq(invitation.role, role)),
     });
   }
   static async updateOrganizationMember(slug: string, data: number) {
@@ -119,6 +123,9 @@ class AdminService {
       .update(organization)
       .set({ studentNo: data })
       .where(eq(organization.slug, slug));
+  }
+  static async deleteInvite(email: string, role: string) {
+    return await db.delete(invitation).where(eq(invitation.email, email));
   }
 }
 

@@ -11,6 +11,7 @@ import {
   getAllMembers,
   getAllParents,
   inviteMember,
+  inviteParent,
 } from "./admin.controller.js";
 import { refreshAccessToken } from "@/middleware/refreshToken.js";
 import { verifyJwt } from "@/middleware/getUserSession.js";
@@ -105,6 +106,16 @@ router.post(
   getSession,
   isAdmin,
   inviteMember
+);
+
+router.post(
+  "/parent/invite/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  isAdmin,
+  inviteParent
 );
 
 export default router;

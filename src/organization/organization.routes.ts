@@ -6,6 +6,7 @@ import {
   getOrganizationBySlug,
   getOrganizations,
   getSlug,
+  getUserOrganizations,
 } from "@/organization/organization.controller.js";
 import { getSession } from "@/middleware/getMemberSession.js";
 import { verifyJwt } from "@/middleware/getUserSession.js";
@@ -35,7 +36,7 @@ router.get(
 );
 
 router.get(
-  "/userOrganization/:slug",
+  "/organization/:slug",
   refreshAccessToken,
   verifyJwt,
   isVerified,
@@ -57,6 +58,14 @@ router.get(
   verifyJwt,
   isVerified,
   getSlug
+);
+
+router.get(
+  "/userOrganizations",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getUserOrganizations
 );
 
 export default router;

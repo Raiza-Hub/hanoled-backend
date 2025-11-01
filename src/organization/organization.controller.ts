@@ -3,7 +3,7 @@ import OrganizationService from "./organization.service.js";
 import { AppError } from "@/utils/appError.js";
 import { IMember, IOrganization } from "@/admin/dto/dto.js";
 import MemberService from "@/member/member.service.js";
-import { member, Organization } from "@/db/schema.js";
+import { Member, member, Organization } from "@/db/schema.js";
 
 export const getOrganizations = async (
   req: Request,
@@ -21,6 +21,30 @@ export const getOrganizations = async (
     );
 
     res.status(200).json({ success: true, message: organization });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getUserOrganizations = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user.id;
+    const members = await MemberService.getAllMembers(userId);
+    console.log(members);
+    const organizations = await Promise.all(
+      members.map(async (member: Member) => {
+        const organizationId = member.organizationId;
+
+        return await OrganizationService.getAllOrganizations(organizationId);
+      })
+    );
+    const orgNames = organizations.map((o: Organization) => [o.name, o.slug]);
+
+    res.status(200).json({ sucess: true, message: orgNames });
   } catch (err) {
     next(err);
   }

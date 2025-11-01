@@ -16,6 +16,11 @@ export interface EmailVerificationOptions {
   subject: string;
   message: string;
 }
+export interface BatchEmails {
+  email: string | string[];
+  subject: string;
+  message: string;
+}
 
 // console.log(process.env.USER_NAME, process.env.USER_MAIL);
 
@@ -55,6 +60,22 @@ export const sendEmailVerification = async (
     text: options.message.trim(),
   });
 
+  if (error) {
+    console.log(error);
+  }
+
+  console.log("Email has been sent", data);
+};
+
+export const sendBatchEmails = async (options: any) => {
+  const { data, error } = await resend.batch.send([
+    {
+      from: `${process.env.USER_MAIL}`,
+      to: options.email,
+      subject: options.subject,
+      html: options.message,
+    },
+  ]);
   if (error) {
     console.log(error);
   }

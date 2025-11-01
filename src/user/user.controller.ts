@@ -20,12 +20,21 @@ export const inviteeDecision = async (
       : student
       ? [String(student)] // wrap single value
       : [];
+    if (!role) {
+      return next(new AppError("Malformed http request", 400));
+    }
 
     //check state of invite to block re entry
-    const invite = await AdminService.findInvite(user.email);
-    if (invite?.status == "success") {
+    const invite = await AdminService.findInvite(
+      user.email,
+      role as "member" | "admin" | "parent"
+    );
+    if (!invite) {
       return next(new AppError("You can no longer access this endpoint", 401));
-    } else if (invite?.status == "failed") {
+    }
+    if (invite.status == "success") {
+      return next(new AppError("You can no longer access this endpoint", 401));
+    } else if (invite.status == "failed") {
       return next(new AppError("You can no longer access this endpoint", 401));
     }
 
@@ -41,21 +50,22 @@ export const inviteeDecision = async (
     if (!organization) {
       return next(new AppError("This organization does not exist", 400));
     }
-    if (role == "member") {
+    if (role == "member" || role == "admin") {
       if (decision == "accept") {
         const memberData: IMember = {
           organizationId: organizationId,
           userId: user.id,
-          role: "member",
+          role: invite.role as "member" | "owner" | "admin",
           isAssigned: false,
         };
         const organizationMemberNo = organization.teacherNo + 1;
         await MemberService.createMember(memberData);
-        await AdminService.updateInvite(user.email, "success");
+        await AdminService.updateInvite(user.email, role, "success");
         await AdminService.updateOrganizationMember(
           organization.slug,
           organizationMemberNo
         );
+        await AdminService.deleteInvite(user.email, role);
         return res
           .status(200)
           .json({ success: true, message: `Welcome to ${organization.name}` });
@@ -74,11 +84,12 @@ export const inviteeDecision = async (
         };
         const organizationParentNo = organization.parentNo + 1;
         await MemberService.createMember(memberData);
-        await AdminService.updateInvite(user.email, "success");
+        await AdminService.updateInvite(user.email, role, "success");
         await AdminService.updateOrganizationParent(
           organization.slug,
           organizationParentNo
         );
+        await AdminService.deleteInvite(user.email, role);
         return res
           .status(200)
           .json({ success: true, message: `Welcome to ${organization.name}` });

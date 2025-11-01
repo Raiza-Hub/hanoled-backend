@@ -5,8 +5,11 @@ import { and, eq, inArray } from "drizzle-orm";
 
 class OrganizationService {
   static async getAllOrganizations(organizationId: string) {
-    return await db.query.organization.findMany({
+    return await db.query.organization.findFirst({
       where: eq(organization.id, organizationId),
+      // with: {
+      //   members: true,
+      // },
     });
   }
   static async getSpecificOrganization(slug: string) {

@@ -5,6 +5,7 @@ import { member, subject, Subject } from "@/db/schema.js";
 import { IInvite, IMember, IParent, IStudent } from "./dto/dto.js";
 import {
   EmailVerificationOptions,
+  sendBatchEmails,
   sendEmailVerification,
 } from "@/utils/mailer.js";
 import MemberService from "@/member/member.service.js";
@@ -116,10 +117,6 @@ export const getAllOrganizationClasses = async (
     const organizationClasses = await AdminService.getOrganizationClasses(
       organization.id
     );
-
-    if (organizationClasses.length === 0) {
-      return [];
-    }
 
     res.status(200).json({ success: true, message: organizationClasses });
   } catch (err) {
@@ -265,37 +262,176 @@ export const inviteMember = async (
     const user = req.user;
     const member = req.member;
     const organization = req.organization;
-    const { email, role, studentIds } = req.body;
+    const { rawEmail, role } = req.body;
+    if (!role) {
+      return next(new AppError("Please select role", 400));
+    }
+    console.log(rawEmail);
+    const email = rawEmail
+      .map((e: { value: string; email: string }) => e.value)
+      .filter(Boolean);
+
+    console.log(email);
 
     const inviteExpiry: Date = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24hrs from now
 
-    if (user.email == email) {
-      return next(new AppError("You cannot invite yourself", 400));
-    }
-    const inviteData: IInvite = {
-      organizationId: organization.id,
-      email,
-      role,
-      status: "pending",
-      expiresAt: inviteExpiry.toISOString(),
-      inviterId: member.id,
-    };
+    const data = await Promise.all(
+      email.map(async (e: string) => {
+        if (user.email == e) {
+          throw new AppError("You cannot invite yourself", 400);
+        }
+        const invited = await AdminService.findInvite(e, role);
+        if (invited) {
+          if (invited.role == "admin") {
+            throw new AppError(
+              `member ${e} has already been invited, status:: ${invited.status}`,
+              400
+            );
+          }
+          if (invited.role == "member") {
+            throw new AppError(
+              `member ${e} has already been invited, status:: ${invited.status}`,
+              400
+            );
+          }
+        }
 
-    const invite = await AdminService.createInvite(inviteData);
+        const inviteData: IInvite = {
+          organizationId: organization.id,
+          email: e,
+          role,
+          status: "pending",
+          expiresAt: inviteExpiry.toISOString(),
+          inviterId: member.id,
+        };
 
-    const message: EmailVerificationOptions = {
-      email,
-      subject: `Invite from ${organization.name}`,
-      message: `Invite to be a part of ${organization.name} as a ${role},
-      Click the link http://localhost:1948/api/user/invitee/${organization.id}?role=${role}&student=${studentIds} to be a part of them`,
-    };
+        const invite = await AdminService.createInvite(inviteData);
 
-    await sendEmailVerification(message);
+        const message: EmailVerificationOptions = {
+          email: e,
+          subject: `Invite from ${organization.name}`,
+          message: `Invite to be a part of ${organization.name} as a ${role},
+          Click the link http://localhost:1948/api/user/invitee/${organization.id}?role=${role}&email=${e} to be a part of them`,
+        };
+        console.log(message);
+        await sendEmailVerification(message);
+      })
+    );
 
     res.status(200).json({
       sucess: true,
       message: `The invite has been sent to ${email}`,
-      details: invite,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+// export const inviteParent = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const user = req.user;
+//     const member = req.member;
+//     const organization = req.organization;
+//     const { email, role, studentIds } = req.body;
+
+//     const inviteExpiry: Date = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24hrs from now
+
+//     if (user.email == email) {
+//       return next(new AppError("You cannot invite yourself", 400));
+//     }
+//     const inviteData: IInvite = {
+//       organizationId: organization.id,
+//       email,
+//       role,
+//       status: "pending",
+//       expiresAt: inviteExpiry.toISOString(),
+//       inviterId: member.id,
+//     };
+
+//     const invite = await AdminService.createInvite(inviteData);
+
+//     const message: EmailVerificationOptions = {
+//       email,
+//       subject: `Invite from ${organization.name}`,
+//       message: `Invite to be a part of ${organization.name} as a ${role},
+//       Click the link http://localhost:1948/api/user/invitee/${organization.id}?role=${role}&student=${studentIds} to be a part of them`,
+//     };
+
+//     await sendEmailVerification(message);
+
+//     res.status(200).json({
+//       sucess: true,
+//       message: `The invite has been sent to ${email}`,
+//       details: invite,
+//     });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
+export const inviteParent = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = req.user;
+    const member = req.member;
+    const organization = req.organization;
+    const { rawEmail, studentIds } = req.body;
+    const role = "parent";
+    console.log(rawEmail);
+    const email = rawEmail
+      .map((e: { value: string; email: string }) => e.value)
+      .filter(Boolean);
+    // const studentIds = rawStudentIds
+    //   .map((e: { value: string; id: string }) => e.value)
+    //   .filter(Boolean);
+
+    console.log(email);
+    console.log(studentIds);
+
+    const inviteExpiry: Date = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24hrs from now
+
+    const data = await Promise.all(
+      email.map(async (e: string) => {
+        if (user.email == e) {
+          throw new AppError("You cannot invite yourself", 400);
+        }
+        const invited = await AdminService.findInvite(e, role);
+        if (invited) {
+          throw new AppError(
+            `Parent ${e} has already been invited, status:: ${invited.status}`,
+            400
+          );
+        }
+        const inviteData: IInvite = {
+          organizationId: organization.id,
+          email: e,
+          role: role,
+          status: "pending",
+          expiresAt: inviteExpiry.toISOString(),
+          inviterId: member.id,
+        };
+
+        const invite = await AdminService.createInvite(inviteData);
+
+        const message: EmailVerificationOptions = {
+          email: e,
+          subject: `Invite from ${organization.name}`,
+          message: `Invite to be a part of ${organization.name} as a ${role},
+          Click the link http://localhost:1948/api/user/invitee/${organization.id}?role=${role}&student=${studentIds}&email=${e} to be a part of them`,
+        };
+        console.log(message);
+        await sendEmailVerification(message);
+      })
+    );
+
+    res.status(200).json({
+      sucess: true,
+      message: `The invite has been sent to ${email}`,
     });
   } catch (err) {
     next(err);
