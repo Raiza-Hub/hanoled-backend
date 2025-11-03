@@ -92,6 +92,7 @@ export const getOrganizationBySlug = async (
 
     const member = req.member;
     const { slug } = req.params;
+    const role = req.role;
     const organizationId: string = member.organizationId;
 
     const organizationBySlug = await OrganizationService.getOrganizationBySlug(
@@ -99,7 +100,7 @@ export const getOrganizationBySlug = async (
       slug
     );
 
-    res.status(200).json({ success: true, message: organizationBySlug });
+    res.status(200).json({ success: true, message: organizationBySlug, role });
   } catch (err) {
     next(err);
   }
