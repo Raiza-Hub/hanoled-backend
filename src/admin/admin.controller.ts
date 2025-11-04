@@ -1,36 +1,13 @@
 import { AppError } from "@/utils/appError.js";
 import { NextFunction, Request, Response } from "express";
 import AdminService from "./admin.service.js";
-import { member, subject, Subject } from "@/db/schema.js";
-import { IInvite, IMember, IParent, IStudent } from "./dto/dto.js";
+import { IInvite } from "./dto/dto.js";
 import {
   EmailVerificationOptions,
-  sendBatchEmails,
   sendEmailVerification,
 } from "@/utils/mailer.js";
 import MemberService from "@/member/member.service.js";
-
-export const getAllSubjects = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    console.log("getting organization subjects");
-
-    const activeOrganization = req.organization;
-
-    const organizationSubjects = await AdminService.getOrganizationSubjects(
-      activeOrganization.id as string
-    );
-
-    const subjects = organizationSubjects.map((s: Subject) => s.subjectName);
-
-    res.status(200).json({ sucess: true, message: subjects });
-  } catch (err) {
-    next(err);
-  }
-};
+import { Student } from "@/db/schema.js";
 
 export const createNewSubject = async (
   req: Request,
@@ -87,6 +64,15 @@ export const createNewClass = async (
       return next(new AppError("This class already exists", 400));
     }
 
+    const memberExists = await MemberService.checkMember(
+      memberId,
+      organization.id
+    );
+
+    if (!memberExists) {
+      return next(new AppError("This member does not exist", 400));
+    }
+
     const classData = {
       organizationId: organization.id,
       memberId,
@@ -124,77 +110,6 @@ export const getAllOrganizationClasses = async (
   }
 };
 
-export const createStudent = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const organization = req.organization;
-    const organizationId = organization.id;
-    const {
-      firstName,
-      lastName,
-      middleName,
-      gender,
-      dateOfBirth,
-      guardianFullName,
-      guardianPhone,
-      guardianEmail,
-      address,
-      className,
-      admissionDate,
-    } = req.body;
-
-    //check if student exists
-
-    const studentExists = await AdminService.getStudent(
-      firstName,
-      lastName,
-      middleName
-    );
-
-    if (studentExists) {
-      return next(new AppError("This student already exists", 400));
-    }
-
-    const classExists = await AdminService.getOrganizationClass(
-      organizationId,
-      className
-    );
-
-    if (!classExists) {
-      return next(new AppError("This class does not exist", 400));
-    }
-
-    const classLevel = classExists.id;
-    const studentData: IStudent = {
-      organizationId,
-      firstName,
-      lastName,
-      middleName,
-      gender,
-      dateOfBirth,
-      guardianFullName,
-      guardianPhone,
-      guardianEmail,
-      address,
-      classLevel,
-      admissionDate,
-    };
-
-    const organizationStudentNo = organization.studentNo + 1;
-    const newStudent = await AdminService.createStudent(studentData);
-    await AdminService.updateOrganizationStudent(
-      organization.slug,
-      organizationStudentNo
-    );
-
-    res.status(200).json({ success: true, message: newStudent });
-  } catch (err) {
-    next(err);
-  }
-};
 export const getAllMembers = async (
   req: Request,
   res: Response,
@@ -208,24 +123,6 @@ export const getAllMembers = async (
     );
 
     res.status(200).json({ success: true, message: getAllMembers });
-  } catch (err) {
-    next(err);
-  }
-};
-
-export const getAllParents = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const organization = req.organization;
-
-    const getParents = await AdminService.getOrganizationParents(
-      organization.id
-    );
-
-    res.status(200).json({ sucess: true, message: getParents });
   } catch (err) {
     next(err);
   }
@@ -326,51 +223,7 @@ export const inviteMember = async (
     next(err);
   }
 };
-// export const inviteParent = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const user = req.user;
-//     const member = req.member;
-//     const organization = req.organization;
-//     const { email, role, studentIds } = req.body;
 
-//     const inviteExpiry: Date = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24hrs from now
-
-//     if (user.email == email) {
-//       return next(new AppError("You cannot invite yourself", 400));
-//     }
-//     const inviteData: IInvite = {
-//       organizationId: organization.id,
-//       email,
-//       role,
-//       status: "pending",
-//       expiresAt: inviteExpiry.toISOString(),
-//       inviterId: member.id,
-//     };
-
-//     const invite = await AdminService.createInvite(inviteData);
-
-//     const message: EmailVerificationOptions = {
-//       email,
-//       subject: `Invite from ${organization.name}`,
-//       message: `Invite to be a part of ${organization.name} as a ${role},
-//       Click the link http://localhost:1948/api/user/invitee/${organization.id}?role=${role}&student=${studentIds} to be a part of them`,
-//     };
-
-//     await sendEmailVerification(message);
-
-//     res.status(200).json({
-//       sucess: true,
-//       message: `The invite has been sent to ${email}`,
-//       details: invite,
-//     });
-//   } catch (err) {
-//     next(err);
-//   }
-// };
 export const inviteParent = async (
   req: Request,
   res: Response,
@@ -393,6 +246,20 @@ export const inviteParent = async (
     console.log(email);
     console.log(studentIds);
 
+    const confirmStudents = await Promise.all(
+      studentIds.map(async (sId: string) => {
+        const studentExists = await AdminService.getSpecificStudent(
+          organization.id,
+          sId
+        );
+        if (!studentExists) {
+          throw new AppError("This student does not exist", 400);
+        }
+        return sId;
+      })
+    );
+
+    console.log(confirmStudents);
     const inviteExpiry: Date = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24hrs from now
 
     const data = await Promise.all(
@@ -410,7 +277,7 @@ export const inviteParent = async (
         const inviteData: IInvite = {
           organizationId: organization.id,
           email: e,
-          role: role,
+          role: role as "member" | "admin" | "parent",
           status: "pending",
           expiresAt: inviteExpiry.toISOString(),
           inviterId: member.id,
@@ -422,7 +289,7 @@ export const inviteParent = async (
           email: e,
           subject: `Invite from ${organization.name}`,
           message: `Invite to be a part of ${organization.name} as a ${role},
-          Click the link http://localhost:1948/api/user/invitee/${organization.id}?role=${role}&student=${studentIds}&email=${e} to be a part of them`,
+          Click the link http://localhost:1948/api/user/invitee/${organization.id}?role=${role}&student=${confirmStudents}&email=${e} to be a part of them`,
         };
         console.log(message);
         await sendEmailVerification(message);
@@ -433,6 +300,113 @@ export const inviteParent = async (
       sucess: true,
       message: `The invite has been sent to ${email}`,
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteSubject = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const organization = req.organization;
+    const { subjectName } = req.body;
+
+    const subjectExists = await AdminService.getOrganizationSubject(
+      organization.id,
+      subjectName
+    );
+
+    if (!subjectExists) {
+      return next(new AppError("This Subject does not exist", 400));
+    }
+
+    await AdminService.deleteSubject(organization.id, subjectName as string);
+
+    res.status(200).json({
+      sucess: true,
+      message: `The Subject ${subjectName} has been deleted successfully`,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteClass = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const organization = req.organization;
+    const { className } = req.body;
+
+    const classExists = await AdminService.getOrganizationClass(
+      organization.id,
+      className
+    );
+    if (!classExists) {
+      return next(new AppError("This Class does not exist", 400));
+    }
+
+    await AdminService.deleteClass(organization.id, className);
+
+    res.status(200).json({
+      sucess: true,
+      message: `The Class ${className} has been deleted successfully`,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const updateClass = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const organization = req.organization;
+    const { memberId, limit, className } = req.body;
+
+    if (memberId) {
+      const memberExists = await MemberService.checkMember(
+        memberId,
+        organization.id
+      );
+
+      if (!memberExists) {
+        return next(new AppError("This member does not exist", 400));
+      }
+    }
+
+    const classData = { memberId, limit };
+
+    const updateClass = await AdminService.updateClass(
+      organization.id,
+      className,
+      classData
+    );
+
+    res.status(200).json({ success: true, message: updateClass });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getAllStudents = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const organization = req.organization;
+
+    const allStudents = await AdminService.getAllStudents(organization.id);
+
+    res.status(200).json({ success: true, message: allStudents });
   } catch (err) {
     next(err);
   }

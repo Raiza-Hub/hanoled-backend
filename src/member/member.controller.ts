@@ -3,6 +3,7 @@ import AdminService from "@/admin/admin.service.js";
 import { Subject } from "@/db/schema.js";
 import { AppError } from "@/utils/appError.js";
 import { IStudent } from "@/admin/dto/dto.js";
+import MemberService from "./member.service.js";
 
 export const getAllSubjects = async (
   req: Request,
@@ -110,6 +111,40 @@ export const createStudent = async (
     const newStudent = await AdminService.createStudent(studentData);
 
     res.status(200).json({ success: true, message: newStudent });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getAllParents = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const organization = req.organization;
+
+    const getParents = await AdminService.getOrganizationParents(
+      organization.id
+    );
+
+    res.status(200).json({ sucess: true, message: getParents });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getAssignedClass = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const member = req.member;
+
+    const assignedClass = await MemberService.getAssignedClass(member.id);
+
+    res.status(200).json({ success: true, message: assignedClass });
   } catch (err) {
     next(err);
   }

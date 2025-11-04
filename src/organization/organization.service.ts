@@ -1,6 +1,6 @@
 import { IOrganization } from "@/admin/dto/dto.js";
 import { db } from "@/db/db.js";
-import { Member, organization } from "@/db/schema.js";
+import { Member, Organization, organization } from "@/db/schema.js";
 import { and, eq, inArray } from "drizzle-orm";
 
 class OrganizationService {
@@ -55,6 +55,16 @@ class OrganizationService {
   }
   static async findAllOrganization() {
     return await db.query.organization.findMany();
+  }
+  static async updateOrganization(id: string, data: Partial<Organization>) {
+    return await db
+      .update(organization)
+      .set(data)
+      .where(eq(organization.id, id))
+      .returning();
+  }
+  static async deleteOrganization(id: string) {
+    return await db.delete(organization).where(eq(organization.id, id));
   }
 }
 

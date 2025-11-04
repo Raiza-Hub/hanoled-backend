@@ -3,28 +3,28 @@ import OrganizationService from "./organization.service.js";
 import { AppError } from "@/utils/appError.js";
 import { IMember, IOrganization } from "@/admin/dto/dto.js";
 import MemberService from "@/member/member.service.js";
-import { Member, member, Organization } from "@/db/schema.js";
+import { Member, Organization } from "@/db/schema.js";
 
-export const getOrganizations = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    console.log("get organizations session");
+// export const getOrganizations = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     console.log("get organizations session");
 
-    const member = req.member;
-    const organizationId = member.organizationId;
+//     const member = req.member;
+//     const organizationId = member.organizationId;
 
-    const organization = await OrganizationService.getAllOrganizations(
-      organizationId
-    );
+//     const organization = await OrganizationService.getAllOrganizations(
+//       organizationId
+//     );
 
-    res.status(200).json({ success: true, message: organization });
-  } catch (err) {
-    next(err);
-  }
-};
+//     res.status(200).json({ success: true, message: organization });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
 export const getUserOrganizations = async (
   req: Request,
@@ -115,7 +115,7 @@ export const createOrganization = async (
       name,
       slug,
       logo,
-      metadata,
+      phone,
       email,
       country,
       address,
@@ -143,7 +143,7 @@ export const createOrganization = async (
       name,
       slug,
       logo,
-      metadata,
+      phone,
       email,
       country,
       address,
@@ -184,6 +184,87 @@ export const getSlug = async (
     const organizationSlug = organizations.map((m: Organization) => m.slug);
 
     res.status(200).json({ message: organizationSlug });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const updateOrganization = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      name,
+      email,
+      slug,
+      logo,
+      country,
+      address,
+      city,
+      state,
+      zipCode,
+      website,
+      socialLinks,
+      phone,
+    } = req.body;
+    const organization = req.organization;
+
+    if (slug) {
+      const usedSlug = await OrganizationService.getOrganizationBySlug(
+        organization.id,
+        slug
+      );
+      if (usedSlug) {
+        return next(
+          new AppError(
+            "This Slug is already in use by another organization",
+            400
+          )
+        );
+      }
+    }
+
+    const organizationData = {
+      name,
+      email,
+      slug,
+      logo,
+      country,
+      address,
+      city,
+      state,
+      zipCode,
+      website,
+      socialLinks,
+      phone,
+    };
+
+    const updateOrganization = await OrganizationService.updateOrganization(
+      organization.id,
+      organizationData
+    );
+    res.status(200).json({ success: true, message: updateOrganization });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteOrganization = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const organization = req.organization;
+
+    await OrganizationService.deleteOrganization(organization.id);
+
+    res.status(200).json({
+      success: true,
+      message: "Your Organization has been deleted sucessfully",
+    });
   } catch (err) {
     next(err);
   }

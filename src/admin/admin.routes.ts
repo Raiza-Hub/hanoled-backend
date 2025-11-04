@@ -5,29 +5,20 @@ import {
   createNewClass,
   createNewSubject,
   getAllOrganizationClasses,
-  getAllSubjects,
-  createStudent,
   getUnassignedMembers,
   getAllMembers,
-  getAllParents,
   inviteMember,
   inviteParent,
+  deleteClass,
+  deleteSubject,
+  updateClass,
+  getAllStudents,
 } from "./admin.controller.js";
 import { refreshAccessToken } from "@/middleware/refreshToken.js";
 import { verifyJwt } from "@/middleware/getUserSession.js";
 import { isVerified } from "@/middleware/isVerified.js";
 
 const router: Router = express.Router();
-
-router.get(
-  "/subjects/:slug",
-  refreshAccessToken,
-  verifyJwt,
-  isVerified,
-  getSession,
-  isAdmin,
-  getAllSubjects
-);
 
 router.post(
   "/create/subject/:slug",
@@ -59,16 +50,6 @@ router.get(
   getAllOrganizationClasses
 );
 
-router.post(
-  "/create/student/:slug",
-  refreshAccessToken,
-  verifyJwt,
-  isVerified,
-  getSession,
-  isAdmin,
-  createStudent
-);
-
 router.get(
   "/get/unassignedMember/:slug",
   refreshAccessToken,
@@ -87,15 +68,6 @@ router.get(
   getSession,
   isAdmin,
   getAllMembers
-);
-router.get(
-  "/get/parents/:slug",
-  refreshAccessToken,
-  verifyJwt,
-  isVerified,
-  getSession,
-  isAdmin,
-  getAllParents
 );
 
 router.post(
@@ -116,6 +88,46 @@ router.post(
   getSession,
   isAdmin,
   inviteParent
+);
+
+router.delete(
+  "/class/delete/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  isAdmin,
+  deleteClass
+);
+
+router.delete(
+  "/subject/delete/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  isAdmin,
+  deleteSubject
+);
+
+router.patch(
+  "/class/update/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  isAdmin,
+  updateClass
+);
+
+router.get(
+  "/get/students/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  isAdmin,
+  getAllStudents
 );
 
 export default router;

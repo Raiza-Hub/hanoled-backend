@@ -1,21 +1,23 @@
 import express, { Router } from "express";
 import {
   createOrganization,
+  deleteOrganization,
   getActiveOrganization,
   getMember,
   getOrganizationBySlug,
-  getOrganizations,
   getSlug,
   getUserOrganizations,
+  updateOrganization,
 } from "@/organization/organization.controller.js";
 import { getSession } from "@/middleware/getMemberSession.js";
 import { verifyJwt } from "@/middleware/getUserSession.js";
 import { refreshAccessToken } from "@/middleware/refreshToken.js";
 import { isVerified } from "@/middleware/isVerified.js";
+import { isOwner } from "@/middleware/isOwner.js";
 
 const router: Router = express.Router();
 
-router.get("/userOrganizations", getSession, getOrganizations);
+// router.get("/userOrganizations", getSession, getOrganizations);
 
 router.get(
   "/currentOrganization/:slug",
@@ -66,6 +68,26 @@ router.get(
   verifyJwt,
   isVerified,
   getUserOrganizations
+);
+
+router.patch(
+  "/updateOrganization/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  isOwner,
+  updateOrganization
+);
+
+router.delete(
+  "deleteOrganization/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  isOwner,
+  deleteOrganization
 );
 
 export default router;

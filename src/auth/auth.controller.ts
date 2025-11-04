@@ -405,6 +405,35 @@ export const resetPassword = async (
   }
 };
 
+export const updateUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const currentEmail = req.user.email;
+    const { name, email, image } = req.body;
+
+    if (email) {
+      const emailExists = await AuthService.findUser(email);
+      if (emailExists) {
+        return next(new AppError("This email already exists", 400));
+      }
+    }
+
+    const userData = {
+      name,
+      email,
+      image,
+    };
+    const updateUser = await AuthService.updateUserData(currentEmail, userData);
+
+    res.status(200).json({ sucess: true, message: updateUser });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const logout = (req: Request, res: Response, next: NextFunction) => {
   try {
     res

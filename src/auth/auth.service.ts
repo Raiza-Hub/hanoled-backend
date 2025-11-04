@@ -1,6 +1,6 @@
 import { IUser } from "@/admin/dto/dto.js";
 import { db } from "@/db/db.js";
-import { user } from "@/db/schema.js";
+import { User, user } from "@/db/schema.js";
 import { eq } from "drizzle-orm";
 
 class AuthService {
@@ -23,6 +23,13 @@ class AuthService {
       .update(user)
       .set({ password: data })
       .where(eq(user.email, email));
+  }
+  static async updateUserData(email: string, data: Partial<User>) {
+    return await db
+      .update(user)
+      .set(data)
+      .where(eq(user.email, email))
+      .returning();
   }
 }
 

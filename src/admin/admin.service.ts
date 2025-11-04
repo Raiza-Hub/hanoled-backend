@@ -1,5 +1,6 @@
 import { db } from "@/db/db.js";
 import {
+  ClassLevel,
   classLevel,
   invitation,
   member,
@@ -83,9 +84,6 @@ class AdminService {
   static async getOrganizationParents(organizationId: string) {
     return await db.query.parent.findMany({
       where: eq(parent.organizationId, organizationId),
-      with: {
-        student: true,
-      },
     });
   }
   static async createInvite(data: IInvite) {
@@ -126,6 +124,49 @@ class AdminService {
   }
   static async deleteInvite(email: string, role: string) {
     return await db.delete(invitation).where(eq(invitation.email, email));
+  }
+  static async deleteSubject(id: string, subjectName: string) {
+    return await db
+      .delete(subject)
+      .where(
+        and(
+          eq(subject.organizationId, id),
+          eq(subject.subjectName, subjectName)
+        )
+      );
+  }
+  static async deleteClass(id: string, className: string) {
+    return await db
+      .delete(classLevel)
+      .where(
+        and(eq(classLevel.organizationId, id), eq(classLevel.class, className))
+      );
+  }
+  static async updateClass(
+    id: string,
+    className: string,
+    data: Partial<ClassLevel>
+  ) {
+    return await db
+      .update(classLevel)
+      .set(data)
+      .where(
+        and(eq(classLevel.organizationId, id), eq(classLevel.class, className))
+      )
+      .returning();
+  }
+  static async getAllStudents(organizationId: string) {
+    return await db.query.student.findMany({
+      where: eq(student.organizationId, organizationId),
+    });
+  }
+  static async getSpecificStudent(organizationId: string, studentId: string) {
+    return await db.query.student.findFirst({
+      where: and(
+        eq(student.organizationId, organizationId),
+        eq(student.id, studentId)
+      ),
+    });
   }
 }
 

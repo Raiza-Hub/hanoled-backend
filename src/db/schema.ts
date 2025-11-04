@@ -75,7 +75,6 @@ export const categoryEnum = pgEnum("category", [
 
 export const schoolType = pgEnum("school_type", ["public", "private"]);
 
-
 export const organization = pgTable("organization", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
@@ -99,7 +98,7 @@ export const organization = pgTable("organization", {
     >()
     .default([]),
   paymentStatus: boolean("payment_status").default(false).notNull(),
-  metadata: text("metadata"),
+  phone: text("phone"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -222,8 +221,14 @@ export const memberRelations = relations(member, ({ one }) => ({
 }));
 
 export const studentRelations = relations(student, ({ many, one }) => ({
-  organization: one(organization),
-  classLevel: one(classLevel),
+  organization: one(organization, {
+    fields: [student.organizationId],
+    references: [organization.id],
+  }),
+  classLevel: one(classLevel, {
+    fields: [student.classLevel],
+    references: [classLevel.id],
+  }),
   subject: many(subject),
   member: many(member),
   parent: many(parent),
@@ -255,10 +260,18 @@ export const organizationRelations = relations(organization, ({ many }) => ({
   student: many(student),
 }));
 
+export const classRelations = relations(classLevel, ({ many, one }) => ({
+  member: one(member, {
+    fields: [classLevel.memberId],
+    references: [member.id],
+  }),
+  students: many(student),
+}));
+
 export type Member = typeof member.$inferSelect & {
   user: typeof user.$inferSelect;
 };
-export type student = typeof student.$inferSelect;
+export type Student = typeof student.$inferSelect;
 
 export type User = typeof user.$inferSelect;
 export type Session = typeof session.$inferSelect;
@@ -268,6 +281,8 @@ export type Organization = typeof organization.$inferSelect;
 export type Subject = typeof subject.$inferSelect;
 
 export type Otp = typeof otp.$inferSelect;
+
+export type ClassLevel = typeof classLevel.$inferSelect;
 
 export const schema = {
   user,

@@ -1,5 +1,6 @@
 import AdminService from "@/admin/admin.service.js";
 import { IMember, IParent } from "@/admin/dto/dto.js";
+import AuthService from "@/auth/auth.service.js";
 import MemberService from "@/member/member.service.js";
 import OrganizationService from "@/organization/organization.service.js";
 import { AppError } from "@/utils/appError.js";
@@ -29,6 +30,7 @@ export const inviteeDecision = async (
       user.email,
       role as "member" | "admin" | "parent"
     );
+    console.log(role, invite)
     if (!invite) {
       return next(new AppError("You can no longer access this endpoint", 401));
     }

@@ -2,7 +2,9 @@ import express, { Router } from "express";
 import {
   createStudent,
   getAllOrganizationClasses,
+  getAllParents,
   getAllSubjects,
+  getAssignedClass,
 } from "./member.controller.js";
 import { getSession } from "@/middleware/getMemberSession.js";
 import { refreshAccessToken } from "@/middleware/refreshToken.js";
@@ -36,6 +38,24 @@ router.post(
   isVerified,
   getSession,
   createStudent
+);
+
+router.get(
+  "/get/parents/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  getAllParents
+);
+
+router.get(
+  "/get/member/assignedClass/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  getAssignedClass
 );
 
 export default router;

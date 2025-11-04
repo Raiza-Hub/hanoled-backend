@@ -5,6 +5,7 @@ import {
   getNewOtp,
   logout,
   resetPassword,
+  updateUser,
   userLogin,
   userProfile,
   userSignUp,
@@ -55,6 +56,14 @@ router.put(
   verifyJwt,
   isVerified,
   resetPassword
+);
+
+router.patch(
+  "/updateUser",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  updateUser
 );
 
 router.get("/logout", logout);

@@ -62,7 +62,7 @@ export interface IOrganization {
   name: string;
   slug: string;
   logo: string;
-  metadata: string;
+  phone: string;
   email: string;
   country: string;
   address: string;
