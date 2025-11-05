@@ -23,7 +23,7 @@ export const refreshAccessToken = async (
 
     //check if refresh token is present
     if (!token) {
-      return next(new AppError("Please Login", 401));
+      return next(new AppError("Please login", 401));
     }
 
     //decode the refresh token
