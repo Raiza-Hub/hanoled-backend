@@ -1,9 +1,9 @@
+import { IMember, IOrganization } from "@/admin/dto/dto.js";
+import { Organization } from "@/db/schema.js";
+import MemberService from "@/member/member.service.js";
+import { AppError } from "@/utils/appError.js";
 import { NextFunction, Request, Response } from "express";
 import OrganizationService from "./organization.service.js";
-import { AppError } from "@/utils/appError.js";
-import { IMember, IOrganization } from "@/admin/dto/dto.js";
-import MemberService from "@/member/member.service.js";
-import { Member, Organization } from "@/db/schema.js";
 
 // export const getOrganizations = async (
 //   req: Request,
@@ -26,29 +26,29 @@ import { Member, Organization } from "@/db/schema.js";
 //   }
 // };
 
-export const getUserOrganizations = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const userId = req.user.id;
-    const members = await MemberService.getAllMembers(userId);
-    console.log(members);
-    const organizations = await Promise.all(
-      members.map(async (member: Member) => {
-        const organizationId = member.organizationId;
+// export const getUserOrganizations = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) => {
+//   try {
+//     const userId = req.user.id;
+//     const members = await MemberService.getAllMembers(userId);
+//     console.log(members);
+//     const organizations = await Promise.all(
+//       members.map(async (member: Member) => {
+//         const organizationId = member.organizationId;
 
-        return await OrganizationService.getAllOrganizations(organizationId);
-      })
-    );
-    const orgNames = organizations.map((o: Organization) => [o.name, o.slug]);
+//         return await OrganizationService.getAllOrganizations(organizationId);
+//       })
+//     );
+//     const orgNames = organizations.map((o: Organization) => [o.name, o.slug]);
 
-    res.status(200).json({ sucess: true, message: orgNames });
-  } catch (err) {
-    next(err);
-  }
-};
+//     res.status(200).json({ sucess: true, message: orgNames });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
 export const getActiveOrganization = async (
   req: Request,
@@ -92,6 +92,7 @@ export const getOrganizationBySlug = async (
 
     const member = req.member;
     const { slug } = req.params;
+     const role = req.role;
     const organizationId: string = member.organizationId;
 
     const organizationBySlug = await OrganizationService.getOrganizationBySlug(
@@ -99,7 +100,7 @@ export const getOrganizationBySlug = async (
       slug
     );
 
-    res.status(200).json({ success: true, message: organizationBySlug });
+    res.status(200).json({ success: true, message: organizationBySlug, role });
   } catch (err) {
     next(err);
   }
@@ -166,9 +167,23 @@ export const createOrganization = async (
       role: "owner",
       isAssigned: true,
     };
-    const member = await MemberService.createMember(memberData);
+     await MemberService.createMember(memberData);
 
     res.status(200).json({ sucess: true, message: newOrganization });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getUserOrganizations  = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const organizations = await OrganizationService.findAllOrganization();
+
+    res.status(200).json({ message: organizations });
   } catch (err) {
     next(err);
   }
