@@ -11,7 +11,6 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
-import { cacheTag } from "next/dist/server/use-cache/cache-tag.js";
 
 export const user = pgTable("user", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -73,7 +72,7 @@ export const categoryEnum = pgEnum("category", [
   "tertiary",
 ]);
 
-export const schoolType = pgEnum("school_type", ["public", "private"]);
+export const schoolType = pgEnum("school_type", ["public", "private", "federal", "state"]);
 
 export const organization = pgTable("organization", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -118,7 +117,7 @@ export const member = pgTable("member", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const inviteRole = pgEnum("role", ["member", "parent", "admin"]);
+export const inviteRole = pgEnum("invite-role", ["member", "parent", "admin"]);
 export const status = pgEnum("status", ["pending", "success", "failed"]);
 
 export const invitation = pgTable("invitation", {
@@ -127,7 +126,7 @@ export const invitation = pgTable("invitation", {
     .notNull()
     .references(() => organization.id, { onDelete: "cascade" }),
   email: text("email").notNull(),
-  role: inviteRole("role").default("member").notNull(),
+  role: inviteRole("invite-role").default("member").notNull(),
   status: status("status").default("pending").notNull(),
   expiresAt: date("expires_at").notNull(),
   inviterId: uuid("inviter_id")
@@ -187,6 +186,7 @@ export const student = pgTable("student", {
   lastName: text("last_name").notNull(),
   middleName: text("middle_name").notNull(),
   gender: genderEnum("gender").notNull(),
+  image: text("image"),
   dateOfBirth: date("date_of_birth").notNull(),
   guardianFullName: text("guardian_full_name").notNull(),
   guardianPhone: varchar("guardian_phone", { length: 11 }).notNull(),
