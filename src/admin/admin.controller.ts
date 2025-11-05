@@ -1,13 +1,12 @@
+import MemberService from "@/member/member.service.js";
 import { AppError } from "@/utils/appError.js";
-import { NextFunction, Request, Response } from "express";
-import AdminService from "./admin.service.js";
-import { IInvite } from "./dto/dto.js";
 import {
   EmailVerificationOptions,
   sendEmailVerification,
 } from "@/utils/mailer.js";
-import MemberService from "@/member/member.service.js";
-import { Student } from "@/db/schema.js";
+import { NextFunction, Request, Response } from "express";
+import AdminService from "./admin.service.js";
+import { IInvite } from "./dto/dto.js";
 
 export const createNewSubject = async (
   req: Request,
@@ -172,20 +171,20 @@ export const inviteMember = async (
 
     const inviteExpiry: Date = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24hrs from now
 
-    const data = await Promise.all(
+    await Promise.all(
       email.map(async (e: string) => {
-        if (user.email == e) {
+        if (user.email === e) {
           throw new AppError("You cannot invite yourself", 400);
         }
         const invited = await AdminService.findInvite(e, role);
         if (invited) {
-          if (invited.role == "admin") {
+          if (invited.role === "admin") {
             throw new AppError(
               `member ${e} has already been invited, status:: ${invited.status}`,
               400
             );
           }
-          if (invited.role == "member") {
+          if (invited.role === "member") {
             throw new AppError(
               `member ${e} has already been invited, status:: ${invited.status}`,
               400
@@ -202,7 +201,7 @@ export const inviteMember = async (
           inviterId: member.id,
         };
 
-        const invite = await AdminService.createInvite(inviteData);
+        await AdminService.createInvite(inviteData);
 
         const message: EmailVerificationOptions = {
           email: e,
@@ -262,7 +261,7 @@ export const inviteParent = async (
     console.log(confirmStudents);
     const inviteExpiry: Date = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24hrs from now
 
-    const data = await Promise.all(
+    await Promise.all(
       email.map(async (e: string) => {
         if (user.email == e) {
           throw new AppError("You cannot invite yourself", 400);
@@ -283,7 +282,7 @@ export const inviteParent = async (
           inviterId: member.id,
         };
 
-        const invite = await AdminService.createInvite(inviteData);
+        await AdminService.createInvite(inviteData);
 
         const message: EmailVerificationOptions = {
           email: e,
