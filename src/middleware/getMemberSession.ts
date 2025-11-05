@@ -3,7 +3,6 @@ import OrganizationService from "@/organization/organization.service.js";
 import ParentService from "@/parent/parent.service.js";
 import { AppError } from "@/utils/appError.js";
 import { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
 
 export const getSession = async (
   req: Request,
@@ -15,7 +14,7 @@ export const getSession = async (
 
     const { slug } = req.params;
     const session = req.user;
-    let roles: string[] = [];
+    const roles: string[] = [];
 
     const organization = await OrganizationService.getSpecificOrganization(
       slug
@@ -24,7 +23,7 @@ export const getSession = async (
     if (!organization) {
       return next(new AppError("This organization does not exist", 400));
     }
-    if (organization.paymentStatus == false) {
+    if (organization.paymentStatus === true) {
       return next(
         new AppError(
           "You cant access this endpoint please register you organization",
