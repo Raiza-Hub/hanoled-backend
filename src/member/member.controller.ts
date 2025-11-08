@@ -4,6 +4,7 @@ import { Subject } from "@/db/schema.js";
 import { AppError } from "@/utils/appError.js";
 import { IStudent } from "@/admin/dto/dto.js";
 import MemberService from "./member.service.js";
+import cloudinary from "@/fileUpload/cloudinary.js";
 
 export const getAllSubjects = async (
   req: Request,
@@ -77,6 +78,15 @@ export const createStudent = async (
       return next(new AppError("This student already exists", 400));
     }
 
+    let uploadedFile;
+    const file = req.file?.path;
+    if (file) {
+      const upload = await cloudinary.uploader.upload(file as string);
+      uploadedFile = upload.secure_url;
+    } else {
+      uploadedFile = "null";
+    }
+
     const classExists = await AdminService.getOrganizationClass(
       organizationId,
       className
@@ -100,6 +110,7 @@ export const createStudent = async (
       address,
       classLevel,
       admissionDate,
+      image: uploadedFile,
     };
 
     const organizationStudentNo = organization.studentNo + 1;

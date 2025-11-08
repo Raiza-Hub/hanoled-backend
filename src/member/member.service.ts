@@ -42,9 +42,9 @@ class MemberService {
   static async getAssignedClass(memberId: string) {
     return await db.query.classLevel.findMany({
       where: eq(classLevel.memberId, memberId),
-      with: {
-        student: true,
-      },
+      // with: {
+      //   student: true,
+      // },
     });
   }
   static async checkMember(memberId: string, organizationId: string) {

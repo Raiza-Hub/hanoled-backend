@@ -14,6 +14,7 @@ import { verifyJwt } from "@/middleware/getUserSession.js";
 import { refreshAccessToken } from "@/middleware/refreshToken.js";
 import { isVerified } from "@/middleware/isVerified.js";
 import { isOwner } from "@/middleware/isOwner.js";
+import { upload } from "@/fileUpload/multer.js";
 
 const router: Router = express.Router();
 
@@ -51,6 +52,7 @@ router.post(
   refreshAccessToken,
   verifyJwt,
   isVerified,
+  upload.single("file"),
   createOrganization
 );
 
@@ -77,6 +79,7 @@ router.patch(
   isVerified,
   getSession,
   isOwner,
+  upload.single("file"),
   updateOrganization
 );
 

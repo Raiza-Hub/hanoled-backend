@@ -10,6 +10,7 @@ import { getSession } from "@/middleware/getMemberSession.js";
 import { refreshAccessToken } from "@/middleware/refreshToken.js";
 import { verifyJwt } from "@/middleware/getUserSession.js";
 import { isVerified } from "@/middleware/isVerified.js";
+import { upload } from "@/fileUpload/multer.js";
 
 const router: Router = express.Router();
 
@@ -37,6 +38,7 @@ router.post(
   verifyJwt,
   isVerified,
   getSession,
+  upload.single("file"),
   createStudent
 );
 

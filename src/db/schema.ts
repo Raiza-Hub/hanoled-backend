@@ -72,14 +72,19 @@ export const categoryEnum = pgEnum("category", [
   "tertiary",
 ]);
 
-export const schoolType = pgEnum("school_type", ["public", "private", "federal", "state"]);
+export const schoolType = pgEnum("school_type", [
+  "public",
+  "private",
+  "federal",
+  "state",
+]);
 
 export const organization = pgTable("organization", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
   slug: text("slug").unique().notNull(),
   logo: text("logo").notNull(),
-  email: text("email").notNull().unique(),
+  email: text("email").notNull(),
   country: text("country").notNull(),
   address: text("address").notNull(),
   city: text("city").notNull(),
@@ -205,6 +210,14 @@ export const otp = pgTable("otp", {
   otp: text("otp").notNull(),
   email: text("email").notNull(),
   expiresAt: date("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const classSpreadsheet = pgTable("class_spreadsheets", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  data: jsonb("data").notNull().default("[]"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

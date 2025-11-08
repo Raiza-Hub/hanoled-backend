@@ -176,20 +176,10 @@ export const inviteMember = async (
         if (user.email === e) {
           throw new AppError("You cannot invite yourself", 400);
         }
-        const invited = await AdminService.findInvite(e, role);
+        const invited = await AdminService.findInviteByEmail(e);
+        console.log(invited);
         if (invited) {
-          if (invited.role === "admin") {
-            throw new AppError(
-              `member ${e} has already been invited, status:: ${invited.status}`,
-              400
-            );
-          }
-          if (invited.role === "member") {
-            throw new AppError(
-              `member ${e} has already been invited, status:: ${invited.status}`,
-              400
-            );
-          }
+          throw new AppError(`member ${e} has already been invited`, 400);
         }
 
         const inviteData: IInvite = {
@@ -266,6 +256,15 @@ export const inviteParent = async (
         if (user.email == e) {
           throw new AppError("You cannot invite yourself", 400);
         }
+        const invitedBefore = await AdminService.findInviteByEmail(e);
+        if (invitedBefore) {
+          if (invitedBefore.role == "member" || invitedBefore.role == "admin") {
+            throw new AppError(
+              `${invitedBefore.email} has yet to accept his ${invitedBefore?.role} invite`,
+              400
+            );
+          }
+        }
         const invited = await AdminService.findInvite(e, role);
         if (invited) {
           throw new AppError(
@@ -313,16 +312,18 @@ export const deleteSubject = async (
     const organization = req.organization;
     const { subjectName } = req.body;
 
-    const subjectExists = await AdminService.getOrganizationSubject(
-      organization.id,
-      subjectName
+    await Promise.all(
+      subjectName.map(async (s: string) => {
+        const subjectExists = await AdminService.getOrganizationSubject(
+          organization.id,
+          s
+        );
+        if (!subjectExists) {
+          return next(new AppError("This Subject does not exist", 400));
+        }
+        await AdminService.deleteSubject(organization.id, s as string);
+      })
     );
-
-    if (!subjectExists) {
-      return next(new AppError("This Subject does not exist", 400));
-    }
-
-    await AdminService.deleteSubject(organization.id, subjectName as string);
 
     res.status(200).json({
       sucess: true,

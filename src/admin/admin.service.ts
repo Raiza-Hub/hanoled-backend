@@ -104,6 +104,11 @@ class AdminService {
       where: and(eq(invitation.email, email), eq(invitation.role, role)),
     });
   }
+  static async findInviteByEmail(email: string) {
+    return await db.query.invitation.findFirst({
+      where: eq(invitation.email, email),
+    });
+  }
   static async updateOrganizationMember(slug: string, data: number) {
     return await db
       .update(organization)

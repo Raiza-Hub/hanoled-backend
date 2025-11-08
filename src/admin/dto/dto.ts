@@ -25,6 +25,7 @@ export interface IStudent {
   address: string;
   classLevel: string;
   admissionDate: string;
+  image: string;
 }
 
 export interface IObject {

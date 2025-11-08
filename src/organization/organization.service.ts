@@ -23,7 +23,13 @@ class OrganizationService {
       with: {
         members: {
           with: {
-            user: true,
+             user: {
+              columns: {
+                name: true,
+                email: true,
+                image: true,
+              },
+            },
           },
         },
       },
@@ -39,7 +45,13 @@ class OrganizationService {
       with: {
         members: {
           with: {
-            user: true,
+            user: {
+              columns: {
+                name: true,
+                email: true,
+                image: true,
+              },
+            },
           },
         },
       },
@@ -48,6 +60,11 @@ class OrganizationService {
   static async getOrganization(name: string, slug: string) {
     return await db.query.organization.findFirst({
       where: and(eq(organization.name, name), eq(organization.slug, slug)),
+    });
+  }
+  static async findOrgBySlug(slug: string) {
+    return await db.query.organization.findFirst({
+      where: eq(organization.slug, slug),
     });
   }
   static async createOrganization(data: IOrganization) {

@@ -15,10 +15,11 @@ import {
 import { verifyJwt } from "@/middleware/getUserSession.js";
 import { refreshAccessToken } from "@/middleware/refreshToken.js";
 import { isVerified } from "@/middleware/isVerified.js";
+import { upload } from "@/fileUpload/multer.js";
 
 const router: Router = express.Router();
 
-router.post("/signUp", userSignUp);
+router.post("/signUp", upload.single("file"), userSignUp);
 
 router.post("/signIn", userLogin);
 
@@ -63,6 +64,7 @@ router.patch(
   refreshAccessToken,
   verifyJwt,
   isVerified,
+  upload.single("file"),
   updateUser
 );
 

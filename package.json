@@ -22,6 +22,7 @@
   "dependencies": {
     "@types/express": "^5.0.3",
     "bcrypt": "^6.0.0",
+    "cloudinary": "^2.8.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
@@ -29,6 +30,7 @@
     "express": "^5.1.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
     "next": "^15.5.3",
     "nodemon": "^3.1.10",
     "postgres": "^3.4.7",
@@ -50,6 +52,7 @@
     "@types/helmet": "^0.0.48",
     "@types/joi": "^17.2.2",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
     "cspell": "^9.2.1",

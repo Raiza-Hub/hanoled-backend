@@ -11,6 +11,7 @@ import {
 } from "@/utils/mailer.js";
 import { generateJwt, generateRefeshToken } from "@/utils/generateJwt.js";
 import { IOtp } from "@/admin/dto/dto.js";
+import cloudinary from "@/fileUpload/cloudinary.js";
 
 export const userSignUp = async (
   req: Request,
@@ -25,6 +26,14 @@ export const userSignUp = async (
 
     if (userExists) {
       return next(new AppError("This user already exixts", 400));
+    }
+    let uploadedUrl;
+    const file = req.file?.path;
+    if (file) {
+      const upload = await cloudinary.uploader.upload(file as string);
+      uploadedUrl = upload.secure_url;
+    } else {
+      uploadedUrl = "null";
     }
 
     //validate schema
@@ -54,6 +63,7 @@ export const userSignUp = async (
       name,
       email,
       password: await bcrypt.hash(password, 10),
+      image: uploadedUrl,
     };
 
     const [newUser] = await AuthService.createUser(data);
@@ -283,7 +293,17 @@ export const deleteProfile = async (
 ) => {
   try {
     //get user email from token
-    const userEmail = req.user.email;
+    const user = req.user;
+    const userEmail = user.email;
+
+    const userExists = await AuthService.findUser(userEmail);
+    if (!userExists) {
+      return next(new AppError("This user does not exist", 400));
+    }
+
+    if (userExists.image !== "null") {
+      await cloudinary.uploader.destroy(userExists.image as string);
+    }
 
     //perform soft delete by converting isVerified to false
     const data = false;
@@ -411,8 +431,34 @@ export const updateUser = async (
   next: NextFunction
 ) => {
   try {
-    const currentEmail = req.user.email;
-    const { name, email, image } = req.body;
+    const user = req.user;
+    const currentEmail = user.email;
+    const { name, email } = req.body;
+
+    const userExists = await AuthService.findUser(user.email);
+
+    if (!userExists) {
+      return next(new AppError("This user does not exist", 400));
+    }
+
+    let uploadedUrl = userExists.image;
+
+    const file = req.file?.path;
+
+    if (file && userExists.image) {
+      // Extract public_id from the existing Cloudinary URL
+      const publicId = userExists.image
+        .split("/")
+        .slice(-2)
+        .join("/")
+        .split(".")[0];
+      await cloudinary.uploader.destroy(publicId);
+    }
+
+    if (file) {
+      const upload = await cloudinary.uploader.upload(file as string);
+      uploadedUrl = upload.secure_url;
+    }
 
     if (email) {
       const emailExists = await AuthService.findUser(email);
@@ -424,7 +470,7 @@ export const updateUser = async (
     const userData = {
       name,
       email,
-      image,
+      image: uploadedUrl,
     };
     const updateUser = await AuthService.updateUserData(currentEmail, userData);
 

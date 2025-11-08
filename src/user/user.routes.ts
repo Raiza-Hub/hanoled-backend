@@ -9,7 +9,7 @@ const router: Router = express.Router();
 
 router.post(
   "/invitee/:organizationId",
-  // accountExists,
+  accountExists,
   refreshAccessToken,
   verifyJwt,
   isVerified,

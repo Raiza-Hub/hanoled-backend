@@ -30,7 +30,7 @@ export const inviteeDecision = async (
       user.email,
       role as "member" | "admin" | "parent"
     );
-    console.log(role, invite)
+    console.log(role, invite);
     if (!invite) {
       return next(new AppError("You can no longer access this endpoint", 401));
     }
@@ -75,8 +75,8 @@ export const inviteeDecision = async (
         return res.status(200).json({
           message: `You have rejected the invite to join ${organization.name}, Thank you for your time`,
         });
-    }
-    if (role == "parent" && student?.length == 0) {
+    } else {
+      console.log(role);
       if (decision == "accept") {
         const memberData: IParent = {
           organizationId: organizationId,
@@ -86,12 +86,19 @@ export const inviteeDecision = async (
         };
         const organizationParentNo = organization.parentNo + 1;
         await MemberService.createMember(memberData);
-        await AdminService.updateInvite(user.email, role, "success");
+        await AdminService.updateInvite(
+          user.email,
+          role as "member" | "admin" | "parent",
+          "success"
+        );
         await AdminService.updateOrganizationParent(
           organization.slug,
           organizationParentNo
         );
-        await AdminService.deleteInvite(user.email, role);
+        await AdminService.deleteInvite(
+          user.email,
+          role as "member" | "admin" | "parent"
+        );
         return res
           .status(200)
           .json({ success: true, message: `Welcome to ${organization.name}` });

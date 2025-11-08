@@ -23,7 +23,7 @@ export const getSession = async (
     if (!organization) {
       return next(new AppError("This organization does not exist", 400));
     }
-    if (organization.paymentStatus === true) {
+    if (organization.paymentStatus === false) {
       return next(
         new AppError(
           "You cant access this endpoint please register you organization",

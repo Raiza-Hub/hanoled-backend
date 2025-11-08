@@ -4,51 +4,7 @@ import MemberService from "@/member/member.service.js";
 import { AppError } from "@/utils/appError.js";
 import { NextFunction, Request, Response } from "express";
 import OrganizationService from "./organization.service.js";
-
-// export const getOrganizations = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     console.log("get organizations session");
-
-//     const member = req.member;
-//     const organizationId = member.organizationId;
-
-//     const organization = await OrganizationService.getAllOrganizations(
-//       organizationId
-//     );
-
-//     res.status(200).json({ success: true, message: organization });
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
-// export const getUserOrganizations = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const userId = req.user.id;
-//     const members = await MemberService.getAllMembers(userId);
-//     console.log(members);
-//     const organizations = await Promise.all(
-//       members.map(async (member: Member) => {
-//         const organizationId = member.organizationId;
-
-//         return await OrganizationService.getAllOrganizations(organizationId);
-//       })
-//     );
-//     const orgNames = organizations.map((o: Organization) => [o.name, o.slug]);
-
-//     res.status(200).json({ sucess: true, message: orgNames });
-//   } catch (err) {
-//     next(err);
-//   }
-// };
+import cloudinary from "@/fileUpload/cloudinary.js";
 
 export const getActiveOrganization = async (
   req: Request,
@@ -92,7 +48,7 @@ export const getOrganizationBySlug = async (
 
     const member = req.member;
     const { slug } = req.params;
-     const role = req.role;
+    const role = req.role;
     const organizationId: string = member.organizationId;
 
     const organizationBySlug = await OrganizationService.getOrganizationBySlug(
@@ -115,7 +71,6 @@ export const createOrganization = async (
     const {
       name,
       slug,
-      logo,
       phone,
       email,
       country,
@@ -130,6 +85,13 @@ export const createOrganization = async (
     } = req.body;
     const user = req.user;
 
+    //check if slug in use
+    const slugUsed = await OrganizationService.findOrgBySlug(slug);
+
+    if (slugUsed) {
+      return next(new AppError("This Slug is already in use", 400));
+    }
+
     //check if organization exists
     const organizationExists = await OrganizationService.getOrganization(
       name,
@@ -139,11 +101,19 @@ export const createOrganization = async (
     if (organizationExists) {
       return next(new AppError("This organization already exists", 400));
     }
+    let uploadedUrl;
+    const file = req.file?.path;
+    if (file) {
+      const upload = await cloudinary.uploader.upload(file as string);
+      uploadedUrl = upload.secure_url;
+    } else {
+      uploadedUrl = "null";
+    }
 
     const orgData: IOrganization = {
       name,
       slug,
-      logo,
+      logo: uploadedUrl,
       phone,
       email,
       country,
@@ -167,7 +137,7 @@ export const createOrganization = async (
       role: "owner",
       isAssigned: true,
     };
-     await MemberService.createMember(memberData);
+    await MemberService.createMember(memberData);
 
     res.status(200).json({ sucess: true, message: newOrganization });
   } catch (err) {
@@ -175,7 +145,7 @@ export const createOrganization = async (
   }
 };
 
-export const getUserOrganizations  = async (
+export const getUserOrganizations = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -214,7 +184,6 @@ export const updateOrganization = async (
       name,
       email,
       slug,
-      logo,
       country,
       address,
       city,
@@ -225,6 +194,23 @@ export const updateOrganization = async (
       phone,
     } = req.body;
     const organization = req.organization;
+    let uploadedUrl = organization.logo;
+
+    const file = req.file?.path;
+    if (file && organization.logo) {
+      // Extract public_id from the existing Cloudinary URL
+      const publicId = organization.logo
+        .split("/")
+        .slice(-2)
+        .join("/")
+        .split(".")[0];
+      await cloudinary.uploader.destroy(publicId);
+    }
+
+    if (file) {
+      const upload = await cloudinary.uploader.upload(file as string);
+      uploadedUrl = upload.secure_url;
+    }
 
     if (slug) {
       const usedSlug = await OrganizationService.getOrganizationBySlug(
@@ -245,7 +231,7 @@ export const updateOrganization = async (
       name,
       email,
       slug,
-      logo,
+      logo: uploadedUrl,
       country,
       address,
       city,
