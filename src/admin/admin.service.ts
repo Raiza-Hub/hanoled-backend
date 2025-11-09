@@ -6,6 +6,7 @@ import {
   member,
   organization,
   parent,
+  Student,
   student,
   subject,
 } from "@/db/schema.js";
@@ -36,6 +37,19 @@ class AdminService {
   static async getOrganizationClasses(organizationId: string) {
     return await db.query.classLevel.findMany({
       where: eq(classLevel.organizationId, organizationId),
+      with: {
+        member: {
+          with: {
+            user: {
+              columns: {
+                name: true,
+                email: true,
+                image: true,
+              },
+            },
+          },
+        },
+      },
     });
   }
   static async getOrganizationClass(organizationId: string, className: string) {
@@ -71,6 +85,13 @@ class AdminService {
   }
   static async createStudent(data: IStudent) {
     return await db.insert(student).values(data).returning();
+  }
+  static async updateStudent(studentId: string, data: Partial<Student>) {
+    return await db
+      .update(student)
+      .set(data)
+      .where(eq(student.id, studentId))
+      .returning();
   }
 
   static async getOrganizationMembers(organizationId: string) {
@@ -148,7 +169,7 @@ class AdminService {
       );
   }
   static async updateClass(
-    id: string,
+    organizationId: string,
     className: string,
     data: Partial<ClassLevel>
   ) {
@@ -156,7 +177,10 @@ class AdminService {
       .update(classLevel)
       .set(data)
       .where(
-        and(eq(classLevel.organizationId, id), eq(classLevel.class, className))
+        and(
+          eq(classLevel.organizationId, organizationId),
+          eq(classLevel.class, className)
+        )
       )
       .returning();
   }

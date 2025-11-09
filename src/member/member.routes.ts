@@ -1,10 +1,13 @@
 import express, { Router } from "express";
 import {
   createStudent,
+  createSubjectSpreadsheet,
   getAllOrganizationClasses,
   getAllParents,
   getAllSubjects,
   getAssignedClass,
+  mergeSubjectSpreadsheets,
+  updateStudent,
 } from "./member.controller.js";
 import { getSession } from "@/middleware/getMemberSession.js";
 import { refreshAccessToken } from "@/middleware/refreshToken.js";
@@ -58,6 +61,33 @@ router.get(
   isVerified,
   getSession,
   getAssignedClass
+);
+
+router.patch(
+  "/student/update/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  updateStudent
+);
+
+router.post(
+  "/spreadsheet/subject/create/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  createSubjectSpreadsheet
+);
+
+router.post(
+  "/spreadsheet/merge/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  mergeSubjectSpreadsheets
 );
 
 export default router;

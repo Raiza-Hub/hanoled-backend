@@ -1,5 +1,5 @@
 import AdminService from "@/admin/admin.service.js";
-import { IMember, IParent } from "@/admin/dto/dto.js";
+import { IMember, IParent, IParentToStudent } from "@/admin/dto/dto.js";
 import AuthService from "@/auth/auth.service.js";
 import MemberService from "@/member/member.service.js";
 import OrganizationService from "@/organization/organization.service.js";
@@ -16,11 +16,19 @@ export const inviteeDecision = async (
     const { organizationId } = req.params;
     const { role } = req.query;
     const { student } = req.query;
-    const normalizedStudentIds: string[] = Array.isArray(student)
-      ? student.map((id) => String(id)) // convert every element
-      : student
-      ? [String(student)] // wrap single value
-      : [];
+    if (!student) {
+      return next(new AppError("Malformed http request", 400));
+    }
+    const normalizedStudentIds =
+      typeof student === "string"
+        ? student.split(",")
+        : Array.isArray(student)
+        ? student
+        : [];
+
+    if (normalizedStudentIds.length === 0) {
+      return next(new AppError("No valid student IDs provided", 400));
+    }
     if (!role) {
       return next(new AppError("Malformed http request", 400));
     }
@@ -81,11 +89,27 @@ export const inviteeDecision = async (
         const memberData: IParent = {
           organizationId: organizationId,
           userId: user.id,
-          studentId: normalizedStudentIds,
           role: "parent",
         };
+
         const organizationParentNo = organization.parentNo + 1;
-        await MemberService.createMember(memberData);
+        const newMember = await MemberService.createMember(memberData);
+        console.log(newMember);
+        if (!newMember) {
+          return next(
+            new AppError("There was an error creating the member", 500)
+          );
+        }
+        const [parent] = newMember;
+        await Promise.all(
+          normalizedStudentIds.map(async (s: string) => {
+            const parentToStudentData: IParentToStudent = {
+              parentId: parent.id,
+              studentId: s,
+            };
+            await MemberService.createParentToStudent(parentToStudentData);
+          })
+        );
         await AdminService.updateInvite(
           user.email,
           role as "member" | "admin" | "parent",

@@ -10,6 +10,7 @@ export interface IClass {
   class: string;
   level: string;
   limit: number;
+  totalStudents: number;
 }
 
 export interface IStudent {
@@ -100,6 +101,26 @@ export type status = "pending" | "success" | "failed";
 export interface IParent {
   organizationId: string;
   userId: string;
-  studentId: string[];
   role: string;
+}
+
+export interface IParentToStudent {
+  parentId: string;
+  studentId: string;
+}
+export type JsonValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonValue[]
+  | { [key: string]: JsonValue };
+
+export interface ISubjectSpreadsheet {
+  name: string;
+  organizationId: string;
+  classId: string;
+  subjectId: string;
+  memberId: string;
+  data: JsonValue;
 }

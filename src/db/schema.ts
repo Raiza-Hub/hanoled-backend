@@ -147,9 +147,18 @@ export const parent = pgTable("parent", {
   userId: uuid("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  studentId: uuid("student_ids").array().notNull().default([]),
+  // studentId: uuid("student_ids").array().notNull().default([]),
   role: text("role").default("parent").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const parentToStudents = pgTable("parents_to_students", {
+  parentId: uuid("parent_id")
+    .notNull()
+    .references(() => parent.id, { onDelete: "cascade" }),
+  studentId: uuid("student_id")
+    .notNull()
+    .references(() => student.id, { onDelete: "cascade" }),
 });
 
 export const classLevel = pgTable("classLevel", {
@@ -163,6 +172,7 @@ export const classLevel = pgTable("classLevel", {
   level: text("level").notNull(),
   class: text("class").notNull(),
   limit: integer("limit").notNull(),
+  totalStudents: integer("total_students").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -214,12 +224,45 @@ export const otp = pgTable("otp", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const classSpreadsheet = pgTable("class_spreadsheets", {
+export const subjectSpreadsheet = pgTable("class_spreadsheets", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
+  organizationId: uuid("organization_id").references(() => organization.id, {
+    onDelete: "cascade",
+  }),
+  classId: uuid("class_id").references(() => classLevel.id, {
+    onDelete: "cascade",
+  }),
+  subjectId: uuid("subject_id").references(() => subject.id, {
+    onDelete: "cascade",
+  }),
+  memberId: uuid("member_id").references(() => member.id, {
+    onDelete: "cascade",
+  }),
   data: jsonb("data").notNull().default("[]"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const results = pgTable("results", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  studentId: uuid("student_id")
+    .notNull()
+    .references(() => student.id),
+  organizationId: uuid("organization_id").references(() => organization.id, {
+    onDelete: "cascade",
+  }),
+  classId: uuid("class_id").references(() => classLevel.id, {
+    onDelete: "cascade",
+  }),
+  subjectId: uuid("subject_id").references(() => subject.id, {
+    onDelete: "cascade",
+  }),
+  memberId: uuid("member_id").references(() => member.id, {
+    onDelete: "cascade",
+  }),
+  subjectName: text("subject_name").notNull(),
+  data: jsonb("data").$type<Record<string, number>>().notNull(),
 });
 
 export const memberRelations = relations(member, ({ one }) => ({
@@ -244,11 +287,11 @@ export const studentRelations = relations(student, ({ many, one }) => ({
   }),
   subject: many(subject),
   member: many(member),
-  parent: many(parent),
+  parent: many(parentToStudents),
 }));
 
 export const parentRelations = relations(parent, ({ many, one }) => ({
-  student: many(student),
+  students: many(parentToStudents),
   user: one(user, {
     fields: [parent.userId],
     references: [user.id],
@@ -258,6 +301,20 @@ export const parentRelations = relations(parent, ({ many, one }) => ({
     references: [organization.id],
   }),
 }));
+
+export const parentsToStudentsRelations = relations(
+  parentToStudents,
+  ({ one }) => ({
+    parent: one(parent, {
+      fields: [parentToStudents.parentId],
+      references: [parent.id],
+    }),
+    student: one(student, {
+      fields: [parentToStudents.studentId],
+      references: [student.id],
+    }),
+  })
+);
 
 export const usersRelations = relations(user, ({ many }) => ({
   members: many(member),
@@ -297,6 +354,8 @@ export type Otp = typeof otp.$inferSelect;
 
 export type ClassLevel = typeof classLevel.$inferSelect;
 
+export type SubjectSpreadsheet = typeof subjectSpreadsheet.$inferSelect;
+
 export const schema = {
   user,
   session,
@@ -313,4 +372,10 @@ export const schema = {
   memberRelations,
   organizationRelations,
   otp,
+  subjectSpreadsheet,
+  usersRelations,
+  parentRelations,
+  classRelations,
+  parentsToStudentsRelations,
+  results,
 };
