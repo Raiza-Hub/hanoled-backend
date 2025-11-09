@@ -377,5 +377,6 @@ export const schema = {
   parentRelations,
   classRelations,
   parentsToStudentsRelations,
+  parentToStudents,
   results,
 };

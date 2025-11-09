@@ -105,6 +105,13 @@ class AdminService {
   static async getOrganizationParents(organizationId: string) {
     return await db.query.parent.findMany({
       where: eq(parent.organizationId, organizationId),
+      with: {
+        students: {
+          with: {
+            student: true,
+          },
+        },
+      },
     });
   }
   static async createInvite(data: IInvite) {
@@ -187,6 +194,22 @@ class AdminService {
   static async getAllStudents(organizationId: string) {
     return await db.query.student.findMany({
       where: eq(student.organizationId, organizationId),
+      with: {
+        parent: {
+          with: {
+            parent: {
+              with: {
+                user: {
+                  columns: {
+                    name: true,
+                    email: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
   }
   static async getSpecificStudent(organizationId: string, studentId: string) {

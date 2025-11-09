@@ -6,7 +6,7 @@ import {
 } from "@/utils/mailer.js";
 import { NextFunction, Request, Response } from "express";
 import AdminService from "./admin.service.js";
-import { IInvite } from "./dto/dto.js";
+import { IClass, IInvite } from "./dto/dto.js";
 
 export const createNewSubject = async (
   req: Request,
@@ -72,12 +72,13 @@ export const createNewClass = async (
       return next(new AppError("This member does not exist", 400));
     }
 
-    const classData = {
+    const classData: IClass = {
       organizationId: organization.id,
       memberId,
       class: className,
       level,
       limit,
+      totalStudents: 0,
     };
 
     //identify that teacher has been assigned to a class
