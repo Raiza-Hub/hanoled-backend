@@ -1,0 +1,142 @@
+import AdminService from "@/admin/admin.service.js";
+import { IMember, IParent, IParentToStudent } from "@/admin/dto/dto.js";
+// import AuthService from "@/auth/auth.service.js";
+import MemberService from "@/member/member.service.js";
+import OrganizationService from "@/organization/organization.service.js";
+import { AppError } from "@/utils/appError.js";
+import { NextFunction, Request, Response } from "express";
+
+export const inviteeDecision = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = req.user;
+    const { organizationId } = req.params;
+    const { role } = req.query;
+    const { student } = req.query;
+
+
+    if (!role) {
+      return next(new AppError("Malformed http request", 400));
+    }
+
+    //check state of invite to block re entry
+    const invite = await AdminService.findInvite(
+      user.email,
+      role as "member" | "admin" | "parent"
+    );
+    console.log(role, invite);
+    if (!invite) {
+      return next(new AppError("You can no longer access this endpoint", 401));
+    }
+    if (invite.status == "success") {
+      return next(new AppError("You can no longer access this endpoint", 401));
+    } else if (invite.status == "failed") {
+      return next(new AppError("You can no longer access this endpoint", 401));
+    }
+
+    const { decision } = req.body;
+    if (decision !== "accept" && decision !== "reject") {
+      return next(new AppError("Invalid input", 400));
+    }
+
+    const organization = await OrganizationService.getActiveOrganization(
+      organizationId
+    );
+
+    if (!organization) {
+      return next(new AppError("This organization does not exist", 400));
+    }
+    if (role == "member" || role == "admin") {
+      if (decision == "accept") {
+        const memberData: IMember = {
+          organizationId: organizationId,
+          userId: user.id,
+          role: invite.role as "member" | "owner" | "admin",
+          isAssigned: false,
+        };
+        const organizationMemberNo = organization.teacherNo + 1;
+        await MemberService.createMember(memberData);
+        await AdminService.updateInvite(user.email, role, "success");
+        await AdminService.updateOrganizationMember(
+          organization.slug,
+          organizationMemberNo
+        );
+        await AdminService.deleteInvite(user.email, organizationId, role as "member" | "admin" | "parent");
+        return res
+          .status(200)
+          .json({ success: true, message: `Welcome to ${organization.name}` });
+      } else if (decision == "reject")
+        return res.status(200).json({
+          message: `You have rejected the invite to join ${organization.name}, Thank you for your time`,
+        });
+    } else {
+      const role = "parent"
+      console.log(role);
+      if (decision == "accept") {
+        if (!student) {
+          return next(new AppError("Malformed http request", 400));
+        }
+        const normalizedStudentIds =
+        typeof student === "string"
+          ? student.split(",")
+          : Array.isArray(student)
+          ? student
+          : [];
+  
+      if (normalizedStudentIds.length === 0) {
+        return next(new AppError("No valid student IDs provided", 400));
+      }
+      
+        const memberData: IParent = {
+          organizationId: organizationId,
+          userId: user.id,
+          role: "parent",
+        };
+
+        const organizationParentNo = organization.parentNo + 1;
+        const newMember = await MemberService.createMember(memberData);
+        console.log(newMember);
+        if (!newMember) {
+          return next(
+            new AppError("There was an error creating the member", 500)
+          );
+        }
+        const [parent] = newMember;
+        await Promise.all(
+          normalizedStudentIds.map(async (s: string) => {
+            const parentToStudentData: IParentToStudent = {
+              parentId: parent.id,
+              studentId: s,
+            };
+            await MemberService.createParentToStudent(parentToStudentData);
+          })
+        );
+        await AdminService.updateInvite(
+          user.email,
+          role as "member" | "admin" | "parent",
+          "success"
+        );
+        await AdminService.updateOrganizationParent(
+          organization.slug,
+          organizationParentNo
+        );
+        await AdminService.deleteInvite(
+          user.email,
+          organizationId,
+          role as "member" | "admin" | "parent"
+        );
+        return res
+          .status(200)
+          .json({ success: true, message: `Welcome to ${organization.name}` });
+      } else if (decision == "reject")
+        return res.status(200).json({
+          message: `You have rejected the invite to join ${organization.name}, Thank you for your time`,
+        });
+    }
+  } catch (err) {
+    next(err);
+  }
+};
