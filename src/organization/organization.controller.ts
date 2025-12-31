@@ -155,7 +155,7 @@ export const getUserOrganizations = async (
   try {
     const userId = req.user.id
     const organizations = await OrganizationService.findAllOrganization();
-    let userOrganizations: string[] = []
+    const userOrganizations: Organization[] = []
 
     await Promise.all(
       organizations.map(async (userOrgs) => {
@@ -163,7 +163,7 @@ export const getUserOrganizations = async (
         const member = await MemberService.getSpecificMember(userId, organizationId)
         const parent = await ParentService.getParentRecord(userId, organizationId)
         if(member || parent) {
-          userOrganizations.push(userOrgs.slug)
+          userOrganizations.push(userOrgs)
         }
       })
     )
