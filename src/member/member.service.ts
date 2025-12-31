@@ -20,7 +20,7 @@ import {
   student,
   // SubjectSpreadsheet,
 } from "@/db/schema.js";
-import { and, eq, inArray, or, sql, SQL } from "drizzle-orm";
+import { and, desc, eq, inArray, or, sql, SQL } from "drizzle-orm";
 
 class MemberService {
   static async getAllMembers(userId: string) {
@@ -75,6 +75,11 @@ class MemberService {
           },
         },
       },
+    });
+  }
+  static async getStudentById(studentId: string) {
+    return await db.query.student.findFirst({
+      where: eq(student.id, studentId),
     });
   }
   static async checkMember(memberId: string, organizationId: string) {
@@ -385,6 +390,21 @@ class MemberService {
         addedColumns: updatedNames.slice(target.columnNames.length),
       };
     });
+  }
+  static async getMemberSpreadsheets(memberId: string) {
+    return await db
+      .select({
+        id: spreadsheetDetails.id,
+        title: spreadsheetDetails.title,
+        subjectId: spreadsheetDetails.subjectId,
+        classId: spreadsheetDetails.classId,
+        columnNames: spreadsheetDetails.columnNames,
+        createdAt: spreadsheetDetails.createdAt,
+        updatedAt: spreadsheetDetails.updatedAt,
+      })
+      .from(spreadsheetDetails)
+      .where(eq(spreadsheetDetails.memberId, memberId))
+      .orderBy(desc(spreadsheetDetails.updatedAt));
   }
 
   // static async subjectSpreadsheetExists(

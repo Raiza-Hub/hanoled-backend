@@ -2,12 +2,14 @@ import express, { Router } from "express";
 import {
   createSpreadsheet,
   createStudent,
+  getAllMemberSpreadsheets,
   // createSubjectSpreadsheet,
   getAllOrganizationClasses,
   getAllParents,
   getAllSubjects,
   getAssignedClass,
   getSpreadSheet,
+  getStudentById,
   mergeSpreadSheets,
   updateByMerging,
   updateFullSpreadsheet,
@@ -77,6 +79,15 @@ router.patch(
   updateStudent
 );
 
+router.get(
+  "/student/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  getStudentById
+);
+
 router.post(
   "/spreadsheet/subject/create/:slug",
   refreshAccessToken,
@@ -120,6 +131,15 @@ router.patch(
   isVerified,
   getSession,
   updateByMerging
+);
+
+router.get(
+  "/spreadsheet/member/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  getAllMemberSpreadsheets
 );
 
 // router.post(

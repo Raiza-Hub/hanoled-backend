@@ -471,6 +471,47 @@ export const updateByMerging = async (
     next(err);
   }
 };
+
+export const getAllMemberSpreadsheets = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const memberId = req.member.id;
+
+    const spreadsheets = await MemberService.getMemberSpreadsheets(memberId);
+
+    return res.status(200).json({
+      success: true,
+      count: spreadsheets.length,
+      data: spreadsheets,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getStudentById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const organizationId = req.organization.id;
+    const { studentId } = req.body;
+
+    const student = await MemberService.getStudentById(studentId);
+
+    if (!student) {
+      return next(new AppError("This student does not exist", 400));
+    }
+
+    res.status(200).json({ success: true, message: student });
+  } catch (err) {
+    next(err);
+  }
+};
 // export const createSubjectSpreadsheet = async (
 //   req: Request,
 //   res: Response,

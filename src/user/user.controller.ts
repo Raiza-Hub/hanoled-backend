@@ -17,7 +17,6 @@ export const inviteeDecision = async (
     const { role } = req.query;
     const { student } = req.query;
 
-
     if (!role) {
       return next(new AppError("Malformed http request", 400));
     }
@@ -64,7 +63,11 @@ export const inviteeDecision = async (
           organization.slug,
           organizationMemberNo
         );
-        await AdminService.deleteInvite(user.email, organizationId, role as "member" | "admin" | "parent");
+        await AdminService.deleteInvite(
+          user.email,
+          organizationId,
+          role as "member" | "admin" | "parent"
+        );
         return res
           .status(200)
           .json({ success: true, message: `Welcome to ${organization.name}` });
@@ -73,23 +76,23 @@ export const inviteeDecision = async (
           message: `You have rejected the invite to join ${organization.name}, Thank you for your time`,
         });
     } else {
-      const role = "parent"
+      const role = "parent";
       console.log(role);
       if (decision == "accept") {
         if (!student) {
           return next(new AppError("Malformed http request", 400));
         }
         const normalizedStudentIds =
-        typeof student === "string"
-          ? student.split(",")
-          : Array.isArray(student)
-          ? student
-          : [];
-  
-      if (normalizedStudentIds.length === 0) {
-        return next(new AppError("No valid student IDs provided", 400));
-      }
-      
+          typeof student === "string"
+            ? student.split(",")
+            : Array.isArray(student)
+            ? student
+            : [];
+
+        if (normalizedStudentIds.length === 0) {
+          return next(new AppError("No valid student IDs provided", 400));
+        }
+
         const memberData: IParent = {
           organizationId: organizationId,
           userId: user.id,

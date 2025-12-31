@@ -154,9 +154,9 @@ export const parent = pgTable("parent", {
 
 export const classLevel = pgTable("classLevel", {
   id: uuid("id").defaultRandom().primaryKey(),
-  memberId: uuid("member_id")
-    .notNull()
-    .references(() => member.id, { onDelete: "set null" }),
+  memberId: uuid("member_id").references(() => member.id, {
+    onDelete: "set null",
+  }),
   organizationId: uuid("organization_id")
     .notNull()
     .references(() => organization.id, { onDelete: "cascade" }),
