@@ -494,7 +494,6 @@ export const getStudentById = async (
   next: NextFunction
 ) => {
   try {
-    const organizationId = req.organization.id;
     const { studentId } = req.body;
 
     const student = await MemberService.getStudentById(studentId);

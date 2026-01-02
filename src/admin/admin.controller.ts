@@ -7,6 +7,8 @@ import {
 import { NextFunction, Request, Response } from "express";
 import AdminService from "./admin.service.js";
 import { IClass, IInvite } from "./dto/dto.js";
+import { getOrgClasandSubId } from "@/utils/getSubandClassId.js";
+import ParentService from "@/parent/parent.service.js";
 
 export const createNewSubject = async (
   req: Request,
@@ -164,9 +166,9 @@ export const inviteMember = async (
       return next(new AppError("Please select role", 400));
     }
     console.log(rawEmail);
-      const email = rawEmail
-        .map((e: { value: string; email: string }) => e.value)
-        .filter(Boolean);
+    const email = rawEmail
+      .map((e: { value: string; email: string }) => e.value)
+      .filter(Boolean);
 
     console.log(email);
 
@@ -413,57 +415,184 @@ export const getAllStudents = async (
   }
 };
 
-export const removeMember = async(req: Request ,res: Response, next: NextFunction) => {
+export const removeMember = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const organization = req.organization
-    const {memberId} = req.body
+    const organization = req.organization;
+    const { memberId } = req.body;
 
-    const memberExists = await AdminService.getOrganizationMember(organization.id, memberId)
+    const memberExists = await AdminService.getOrganizationMember(
+      organization.id,
+      memberId
+    );
 
-    if(!memberExists) {
-      return next(new AppError("This member does not exist", 400))
+    if (!memberExists) {
+      return next(new AppError("This member does not exist", 400));
     }
-    if(memberExists.role == "admin") {
-      return next(new AppError("You cannot remove an admin", 400))
+    if (memberExists.role == "admin") {
+      return next(new AppError("You cannot remove an admin", 400));
     }
-    if(memberExists.role == "owner") {
-      return next(new AppError("You cannot remove the owner", 400))
+    if (memberExists.role == "owner") {
+      return next(new AppError("You cannot remove the owner", 400));
     }
-    await AdminService.removeMember(memberId)
+    const organizationMemberNo = organization.teacherNo - 1;
+    await AdminService.updateOrganizationMember(
+      organization.slug,
+      organizationMemberNo
+    );
 
-    res.status(200).json({ success: true, message: "Member removed successfully"})
+    await AdminService.removeMember(memberId);
+
+    res
+      .status(200)
+      .json({ success: true, message: "Member removed successfully" });
   } catch (err) {
-    next(err)
+    next(err);
   }
-}
+};
 
-export const checkInvites = async(req: Request, res: Response, next: NextFunction) => {
+export const removeParent = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const organization = req.organization
-    const pendingInvites: IInvite[] = []
-    const invites = await AdminService.getOrganizationInvites(organization.id)
-   Promise.all(invites.map(async (invite) => {
-    if(invite.status == "pending") {
-      pendingInvites.push(invite)
-    }
-   }))
-   res.status(200).json({ success: true, message: pendingInvites })
-  } catch (err) {
-    next(err)
-  }
-}
+    const organization = req.organization;
+    const { parentId } = req.body;
 
-export const deleteAllPendingInvite = async(req: Request, res: Response, next: NextFunction) => {
-  try {
-    const organization = req.organization
-    const invites = await AdminService.getOrganizationInvites(organization.id)
-   Promise.all(invites.map(async (invite) => {
-    if(invite.status == "pending") {
-      await AdminService.deleteInvite(invite.email, organization.id, invite.role as "member" | "admin" | "parent")
+    const parentExists = await AdminService.getOrganizationParent(
+      organization.id,
+      parentId
+    );
+    if (!parentExists) {
+      return next(new AppError("This parent does not exist", 400));
     }
-   }))
-    res.status(200).json({ success: true, message: "Pending invites deleted successfully"})
+    const organizationParentNo = organization.parentNo - 1;
+    await AdminService.updateOrganizationParent(
+      organization.slug,
+      organizationParentNo
+    );
+
+    await AdminService.removeParent(parentId);
+
+    res
+      .status(200)
+      .json({ success: true, message: "Parent removed successfully" });
   } catch (err) {
-    next(err)
+    next(err);
   }
-}
+};
+
+export const checkInvites = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const organization = req.organization;
+    const pendingInvites: IInvite[] = [];
+    const invites = await AdminService.getOrganizationInvites(organization.id);
+    Promise.all(
+      invites.map(async (invite) => {
+        if (invite.status == "pending") {
+          pendingInvites.push(invite);
+        }
+      })
+    );
+    res.status(200).json({ success: true, message: pendingInvites });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const deleteAllPendingInvite = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const organization = req.organization;
+    const invites = await AdminService.getOrganizationInvites(organization.id);
+    Promise.all(
+      invites.map(async (invite) => {
+        if (invite.status == "pending") {
+          await AdminService.deleteInvite(
+            invite.email,
+            organization.id,
+            invite.role as "member" | "admin" | "parent"
+          );
+        }
+      })
+    );
+    res
+      .status(200)
+      .json({ success: true, message: "Pending invites deleted successfully" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getMemberSpreadSheet = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const organizationId = req.organization.id;
+    const { memberId } = req.body;
+    const { subjectName, className } = req.params;
+
+    const { subjectId, classId } = await getOrgClasandSubId(
+      organizationId,
+      subjectName,
+      className
+    );
+
+    const spreadsheetDetails = await AdminService.getSpreadsheetDetails(
+      memberId as string,
+      subjectId,
+      classId
+    );
+
+    if (!spreadsheetDetails) {
+      return next(new AppError("Spreadsheet does not exist", 400));
+    }
+    if (spreadsheetDetails.status == "pending") {
+      return next(
+        new AppError(
+          "Spreadsheet is currently not accessible, please wait for it to be uploaded",
+          400
+        )
+      );
+    }
+
+    const spreadsheet = await MemberService.getSpreadsheetForHandsontable(
+      memberId as string,
+      subjectId,
+      classId
+    );
+
+    res.status(200).json({ success: true, data: spreadsheet });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getAllOragnizationSpreadSheet = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const organizationId = req.organization.id;
+    const spreadsheets = await AdminService.getAllOragnizationSpreadSheet(
+      organizationId
+    );
+    res.status(200).json({ success: true, data: spreadsheets });
+  } catch (err) {
+    next(err);
+  }
+};

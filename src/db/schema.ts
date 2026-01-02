@@ -224,46 +224,11 @@ export const otp = pgTable("otp", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// export const subjectSpreadsheet = pgTable("subject_spreadsheets", {
-//   id: uuid("id").defaultRandom().primaryKey(),
-//   name: text("name").notNull(),
-//   organizationId: uuid("organization_id").references(() => organization.id, {
-//     onDelete: "cascade",
-//   }),
-//   classId: uuid("class_id").references(() => classLevel.id, {
-//     onDelete: "cascade",
-//   }),
-//   subjectId: uuid("subject_id").references(() => subject.id, {
-//     onDelete: "cascade",
-//   }),
-//   memberId: uuid("member_id").references(() => member.id, {
-//     onDelete: "cascade",
-//   }),
-//   data: jsonb("data").notNull().default("[]"),
-//   createdAt: timestamp("created_at").defaultNow().notNull(),
-//   updatedAt: timestamp("updated_at").defaultNow().notNull(),
-// });
-
-// export const results = pgTable("results", {
-//   id: uuid("id").defaultRandom().primaryKey(),
-//   studentId: uuid("student_id")
-//     .notNull()
-//     .references(() => student.id),
-//   organizationId: uuid("organization_id").references(() => organization.id, {
-//     onDelete: "cascade",
-//   }),
-//   classId: uuid("class_id").references(() => classLevel.id, {
-//     onDelete: "cascade",
-//   }),
-//   subjectId: uuid("subject_id").references(() => subject.id, {
-//     onDelete: "cascade",
-//   }),
-//   memberId: uuid("member_id").references(() => member.id, {
-//     onDelete: "cascade",
-//   }),
-//   subjectName: text("subject_name").notNull(),
-//   data: jsonb("data").$type<Record<string, number>>().notNull(),
-// });
+export const spreadsheetStatus = pgEnum("spreadsheet_status", [
+  "pending",
+  "active",
+  "inactive",
+]);
 
 export const spreadsheetDetails = pgTable("spreadsheet_details", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -280,6 +245,7 @@ export const spreadsheetDetails = pgTable("spreadsheet_details", {
     onDelete: "cascade",
   }),
   title: text("title").notNull(),
+  status: spreadsheetStatus("spreadsheet_status").default("pending").notNull(),
   columnNames: text("column_name").array().notNull(),
   columnIndexes: integer("column_index").array().notNull(),
   description: text("description"),

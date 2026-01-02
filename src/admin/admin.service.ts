@@ -6,6 +6,7 @@ import {
   member,
   organization,
   parent,
+  spreadsheetDetails,
   Student,
   student,
   subject,
@@ -104,8 +105,8 @@ class AdminService {
           columns: {
             name: true,
             email: true,
-            image: true
-          }
+            image: true,
+          },
         },
         students: {
           with: {
@@ -156,8 +157,20 @@ class AdminService {
       .set({ studentNo: data })
       .where(eq(organization.slug, slug));
   }
-  static async deleteInvite(email: string, organizationId: string, role: "member" | "admin" | "parent") {
-    return await db.delete(invitation).where(and(eq(invitation.email, email), eq(invitation.organizationId, organizationId), eq(invitation.role, role)));
+  static async deleteInvite(
+    email: string,
+    organizationId: string,
+    role: "member" | "admin" | "parent"
+  ) {
+    return await db
+      .delete(invitation)
+      .where(
+        and(
+          eq(invitation.email, email),
+          eq(invitation.organizationId, organizationId),
+          eq(invitation.role, role)
+        )
+      );
   }
   static async deleteSubject(id: string, subjectName: string) {
     return await db
@@ -222,16 +235,49 @@ class AdminService {
     });
   }
   static async removeMember(memberId: string) {
-    return await db.delete(member).where(eq(member.id, memberId))
+    return await db.delete(member).where(eq(member.id, memberId));
+  }
+  static async removeParent(parentId: string) {
+    return await db.delete(parent).where(eq(parent.id, parentId));
   }
   static async getOrganizationInvites(organizationId: string) {
     return await db.query.invitation.findMany({
-      where: eq(invitation.organizationId, organizationId)
-    })
-  }static async getOrganizationMember(organizationId: string, memberId: string) {
+      where: eq(invitation.organizationId, organizationId),
+    });
+  }
+  static async getOrganizationMember(organizationId: string, memberId: string) {
     return await db.query.member.findFirst({
-      where: and(eq(member.organizationId, organizationId), eq(member.id, memberId))
-    })
+      where: and(
+        eq(member.organizationId, organizationId),
+        eq(member.id, memberId)
+      ),
+    });
+  }
+  static async getOrganizationParent(organizationId: string, parentId: string) {
+    return await db.query.parent.findFirst({
+      where: and(
+        eq(parent.organizationId, organizationId),
+        eq(parent.id, parentId)
+      ),
+    });
+  }
+  static async getAllOragnizationSpreadSheet(organizationId: string) {
+    return await db.query.spreadsheetDetails.findMany({
+      where: eq(spreadsheetDetails.organizationId, organizationId),
+    });
+  }
+  static async getSpreadsheetDetails(
+    memberId: string,
+    subjectId: string,
+    classId: string
+  ) {
+    return await db.query.spreadsheetDetails.findFirst({
+      where: and(
+        eq(spreadsheetDetails.memberId, memberId),
+        eq(spreadsheetDetails.subjectId, subjectId),
+        eq(spreadsheetDetails.classId, classId)
+      ),
+    });
   }
 }
 export default AdminService;
