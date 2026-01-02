@@ -270,12 +270,24 @@ export const createSpreadsheet = async (
     const organization = req.organization;
     const member = req.member;
     const { title, rows, className, subjectName } = req.body;
+    const status = "pending";
 
     const { subjectId, classId } = await getOrgClasandSubId(
       organization.id,
       subjectName,
       className
     );
+
+    const spreadsheetExists = await MemberService.getRawSpreadSheetDetails(
+      member.id,
+      subjectId,
+      classId,
+      status as "active" | "pending" | "inactive"
+    );
+
+    if (spreadsheetExists) {
+      return next(new AppError("This spreadsheet already exists", 400));
+    }
 
     const columns: IColumn[] =
       rows.length > 0
@@ -344,6 +356,7 @@ export const getSpreadSheet = async (
     const organizationId = req.organization.id;
     const memberId = req.member.id;
     const { subjectName, className } = req.params;
+    const status = "pending";
 
     const { subjectId, classId } = await getOrgClasandSubId(
       organizationId,
@@ -354,7 +367,8 @@ export const getSpreadSheet = async (
     const spreadsheet = await MemberService.getSpreadsheetForHandsontable(
       memberId as string,
       subjectId,
-      classId
+      classId,
+      status as "active" | "pending" | "inactive"
     );
 
     res.status(200).json({ success: true, data: spreadsheet });
@@ -372,17 +386,30 @@ export const updateFullSpreadsheet = async (
     const organizationId = req.organization.id;
     const memberId = req.member.id;
     const { subjectName, className } = req.params;
-    const { rows } = req.body;
+    const { title, rows } = req.body;
+    const status = "pending";
 
     const { subjectId, classId } = await getOrgClasandSubId(
       organizationId,
       subjectName,
       className
     );
+    const spreadsheetExists = await MemberService.getRawSpreadSheetDetails(
+      memberId,
+      subjectId,
+      classId,
+      status as "active" | "pending" | "inactive"
+    );
+
+    if (!spreadsheetExists) {
+      return next(new AppError("This spreadsheet does not exist", 400));
+    }
+
     const updatedSpreadsheet = await MemberService.updateFullSpreadsheet(
       memberId,
       subjectId,
       classId,
+      title,
       rows
     );
 
@@ -401,12 +428,24 @@ export const mergeSpreadSheets = async (
     const organizationId = req.organization.id;
     const memberId = req.member.id;
     const { subjectName, className, title, selections } = req.body;
+    const status = "pending";
 
     const { subjectId, classId } = await getOrgClasandSubId(
       organizationId,
       subjectName,
       className
     );
+
+    const spreadsheetExists = await MemberService.getRawSpreadSheetDetails(
+      memberId,
+      subjectId,
+      classId,
+      status as "active" | "pending" | "inactive"
+    );
+
+    if (!spreadsheetExists) {
+      return next(new AppError("This spreadsheet does not exist", 400));
+    }
 
     const context: ISpreadsheetDetails = {
       organizationId,
@@ -438,6 +477,7 @@ export const updateByMerging = async (
     const memberId = req.member.id;
     const { subjectName, className } = req.params;
     const { selections } = req.body;
+    const status = "pending";
 
     const { subjectId, classId } = await getOrgClasandSubId(
       organizationId,
@@ -448,7 +488,8 @@ export const updateByMerging = async (
     const targetDetails = await MemberService.getRawSpreadSheetDetails(
       memberId,
       subjectId,
-      classId
+      classId,
+      status as "active" | "pending" | "inactive"
     );
 
     if (!targetDetails) {
@@ -475,8 +516,12 @@ export const getAllMemberSpreadsheets = async (
 ) => {
   try {
     const memberId = req.member.id;
+    const status = "pending";
 
-    const spreadsheets = await MemberService.getMemberSpreadsheets(memberId);
+    const spreadsheets = await MemberService.getMemberSpreadsheets(
+      memberId,
+      status as "active" | "pending" | "inactive"
+    );
 
     return res.status(200).json({
       success: true,
@@ -507,123 +552,3 @@ export const getStudentById = async (
     next(err);
   }
 };
-// export const createSubjectSpreadsheet = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const organization = req.organization;
-//     const member = req.member;
-
-//     const { name, body, className, subjectName } = req.body;
-
-//     const classExists = await AdminService.getOrganizationClass(
-//       organization.id,
-//       className
-//     );
-//     if (!classExists) {
-//       return next(new AppError("This class does not exist", 400));
-//     }
-//     const subjectExists = await AdminService.getOrganizationSubject(
-//       organization.id,
-//       subjectName
-//     );
-//     if (!subjectExists) {
-//       return next(new AppError("This subject does not exist", 400));
-//     }
-
-//     const spreadsheetExists = await MemberService.subjectSpreadsheetExists(
-//       organization.id,
-//       subjectExists.id,
-//       classExists.id
-//     );
-
-//     if (spreadsheetExists) {
-//       return next(new AppError("This spreadsheet already exists", 400));
-//     }
-
-//     const spreadsheetData: ISubjectSpreadsheet = {
-//       name,
-//       organizationId: organization.id,
-//       classId: classExists.id,
-//       subjectId: subjectExists.id,
-//       memberId: member.id,
-//       data: body,
-//     };
-
-//     const newClassSpreadsheet = await MemberService.createSubjectSpreadsheet(
-//       spreadsheetData
-//     );
-//   } catch (err) {
-//     next(err);
-//   }
-// };
-
-// export const mergeSubjectSpreadsheets = async (
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) => {
-//   try {
-//     const organization = req.organization;
-//     const member = req.member;
-
-//     const { name, selectedSubjects, selectedColumn, className, subjectName } =
-//       req.body;
-
-//     const classExists = await AdminService.getOrganizationClass(
-//       organization.id,
-//       className
-//     );
-//     if (!classExists) {
-//       return next(new AppError("This class does not exist", 400));
-//     }
-//     const subjectExists = await AdminService.getOrganizationSubject(
-//       organization.id,
-//       subjectName
-//     );
-//     if (!subjectExists) {
-//       return next(new AppError("This subject does not exist", 400));
-//     }
-
-//     if (!Array.isArray(selectedSubjects) || selectedSubjects.length === 0) {
-//       throw new AppError("No subjects selected", 400);
-//     }
-
-//     if (!selectedColumn) {
-//       throw new AppError("No column selected (e.g., 'CA 1')", 400);
-//     }
-
-//     const records = await MemberService.selectedSubjectResults(
-//       selectedColumn,
-//       selectedSubjects
-//     );
-
-//     // Step 2: Merge results by studentId
-//     const merged: Record<string, { [subject: string]: number; total: number }> =
-//       {};
-
-//     for (const record of records) {
-//       const { studentId, subjectName, value } = record;
-
-//       if (!merged[studentId]) merged[studentId] = { total: 0 };
-
-//       merged[studentId][subjectName] = value || 0;
-//       merged[studentId].total += value || 0;
-//     }
-
-//     // Step 3: Format response
-//     const formatted = Object.entries(merged).map(([studentId, scores]) => ({
-//       student_id: studentId,
-//       ...scores,
-//     }));
-
-//     res.status(200).json({
-//       success: true,
-//       data: formatted,
-//     });
-//   } catch (err) {
-//     next(err);
-//   }
-// };

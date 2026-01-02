@@ -261,21 +261,29 @@ class AdminService {
       ),
     });
   }
-  static async getAllOragnizationSpreadSheet(organizationId: string) {
+  static async getAllOragnizationSpreadSheet(
+    organizationId: string,
+    status: "active" | "pending" | "inactive"
+  ) {
     return await db.query.spreadsheetDetails.findMany({
-      where: eq(spreadsheetDetails.organizationId, organizationId),
+      where: and(
+        eq(spreadsheetDetails.organizationId, organizationId),
+        eq(spreadsheetDetails.status, status)
+      ),
     });
   }
   static async getSpreadsheetDetails(
     memberId: string,
     subjectId: string,
-    classId: string
+    classId: string,
+    status: "active" | "pending" | "inactive"
   ) {
     return await db.query.spreadsheetDetails.findFirst({
       where: and(
         eq(spreadsheetDetails.memberId, memberId),
         eq(spreadsheetDetails.subjectId, subjectId),
-        eq(spreadsheetDetails.classId, classId)
+        eq(spreadsheetDetails.classId, classId),
+        eq(spreadsheetDetails.status, status)
       ),
     });
   }

@@ -544,6 +544,7 @@ export const getMemberSpreadSheet = async (
     const organizationId = req.organization.id;
     const { memberId } = req.body;
     const { subjectName, className } = req.params;
+    const status = "active";
 
     const { subjectId, classId } = await getOrgClasandSubId(
       organizationId,
@@ -554,25 +555,19 @@ export const getMemberSpreadSheet = async (
     const spreadsheetDetails = await AdminService.getSpreadsheetDetails(
       memberId as string,
       subjectId,
-      classId
+      classId,
+      status as "active" | "pending" | "inactive"
     );
 
     if (!spreadsheetDetails) {
       return next(new AppError("Spreadsheet does not exist", 400));
     }
-    if (spreadsheetDetails.status == "pending") {
-      return next(
-        new AppError(
-          "Spreadsheet is currently not accessible, please wait for it to be uploaded",
-          400
-        )
-      );
-    }
 
     const spreadsheet = await MemberService.getSpreadsheetForHandsontable(
       memberId as string,
       subjectId,
-      classId
+      classId,
+      status as "active" | "pending" | "inactive"
     );
 
     res.status(200).json({ success: true, data: spreadsheet });
@@ -588,8 +583,11 @@ export const getAllOragnizationSpreadSheet = async (
 ) => {
   try {
     const organizationId = req.organization.id;
+    const status = "active";
+
     const spreadsheets = await AdminService.getAllOragnizationSpreadSheet(
-      organizationId
+      organizationId,
+      status as "active" | "pending" | "inactive"
     );
     res.status(200).json({ success: true, data: spreadsheets });
   } catch (err) {

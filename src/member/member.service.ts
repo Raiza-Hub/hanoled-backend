@@ -123,14 +123,16 @@ class MemberService {
   static async getSpreadsheetForHandsontable(
     memberId: string,
     subjectId: string,
-    classId: string
+    classId: string,
+    status: "active" | "pending" | "inactive"
   ) {
     // 1. Fetch both the header details and the actual data
     const details = await db.query.spreadsheetDetails.findFirst({
       where: and(
         eq(spreadsheetDetails.memberId, memberId),
         eq(spreadsheetDetails.subjectId, subjectId),
-        eq(spreadsheetDetails.classId, classId)
+        eq(spreadsheetDetails.classId, classId),
+        eq(spreadsheetDetails.status, status)
       ),
     });
     if (!details) {
@@ -176,6 +178,7 @@ class MemberService {
     memberId: string,
     subjectId: string,
     classId: string,
+    title: string | undefined,
     rows: any[]
   ) {
     return await db.transaction(async (tx) => {
@@ -188,13 +191,22 @@ class MemberService {
               index,
             }))
           : [];
+      const updateData: {
+        columnNames: string[];
+        columnIndexes: number[];
+        updatedAt: Date;
+        title?: string;
+      } = {
+        columnNames: columns.map((c) => c.name),
+        columnIndexes: columns.map((c) => c.index),
+        updatedAt: new Date(),
+      };
+      if (title !== undefined) {
+        updateData.title = title;
+      }
       const details = await tx
         .update(spreadsheetDetails)
-        .set({
-          columnNames: columns.map((c) => c.name),
-          columnIndexes: columns.map((c) => c.index),
-          updatedAt: new Date(),
-        })
+        .set(updateData)
         .where(
           and(
             eq(spreadsheetDetails.memberId, memberId),
@@ -295,13 +307,15 @@ class MemberService {
   static async getRawSpreadSheetDetails(
     memberId: string,
     subjectId: string,
-    classId: string
+    classId: string,
+    status: "active" | "pending" | "inactive"
   ) {
     return await db.query.spreadsheetDetails.findFirst({
       where: and(
         eq(spreadsheetDetails.memberId, memberId),
         eq(spreadsheetDetails.subjectId, subjectId),
-        eq(spreadsheetDetails.classId, classId)
+        eq(spreadsheetDetails.classId, classId),
+        eq(spreadsheetDetails.status, status)
       ),
     });
   }
@@ -391,7 +405,10 @@ class MemberService {
       };
     });
   }
-  static async getMemberSpreadsheets(memberId: string) {
+  static async getMemberSpreadsheets(
+    memberId: string,
+    status: "active" | "pending" | "inactive"
+  ) {
     return await db
       .select({
         id: spreadsheetDetails.id,
@@ -403,7 +420,12 @@ class MemberService {
         updatedAt: spreadsheetDetails.updatedAt,
       })
       .from(spreadsheetDetails)
-      .where(eq(spreadsheetDetails.memberId, memberId))
+      .where(
+        and(
+          eq(spreadsheetDetails.memberId, memberId),
+          eq(spreadsheetDetails.status, status)
+        )
+      )
       .orderBy(desc(spreadsheetDetails.updatedAt));
   }
 

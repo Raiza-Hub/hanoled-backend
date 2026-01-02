@@ -142,22 +142,4 @@ router.get(
   getAllMemberSpreadsheets
 );
 
-// router.post(
-//   "/spreadsheet/subject/create/:slug",
-//   refreshAccessToken,
-//   verifyJwt,
-//   isVerified,
-//   getSession,
-//   createSubjectSpreadsheet
-// );
-
-// router.post(
-//   "/spreadsheet/merge/:slug",
-//   refreshAccessToken,
-//   verifyJwt,
-//   isVerified,
-//   getSession,
-//   mergeSubjectSpreadsheets
-// );
-
 export default router;
