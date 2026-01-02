@@ -153,21 +153,27 @@ export const getUserOrganizations = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.user.id
+    const userId = req.user.id;
     const organizations = await OrganizationService.findAllOrganization();
-    let userOrganizations: string[] = []
+    let userOrganizations: string[] = [];
 
     await Promise.all(
       organizations.map(async (userOrgs) => {
-        const organizationId = userOrgs.id
-        const member = await MemberService.getSpecificMember(userId, organizationId)
-        const parent = await ParentService.getParentRecord(userId, organizationId)
-        if(member || parent) {
-          userOrganizations.push(userOrgs.slug)
+        const organizationId = userOrgs.id;
+        const member = await MemberService.getSpecificMember(
+          userId,
+          organizationId
+        );
+        const parent = await ParentService.getParentRecord(
+          userId,
+          organizationId
+        );
+        if (member || parent) {
+          userOrganizations.push(userOrgs.slug);
         }
       })
-    )
-    res.status(200).json({ result: success, message: userOrganizations})
+    );
+    res.status(200).json({ result: success, message: userOrganizations });
   } catch (err) {
     next(err);
   }
@@ -232,12 +238,14 @@ export const updateOrganization = async (
         slug
       );
       if (usedSlug) {
-        return next(
-          new AppError(
-            "This Slug is already in use by another organization",
-            400
-          )
-        );
+        if (usedSlug.id !== organization.id) {
+          return next(
+            new AppError(
+              "This Slug is already in use by another organization",
+              400
+            )
+          );
+        }
       }
     }
 
