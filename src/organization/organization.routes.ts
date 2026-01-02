@@ -84,7 +84,7 @@ router.patch(
 );
 
 router.delete(
-  "deleteOrganization/:slug",
+  "/deleteOrganization/:slug",
   refreshAccessToken,
   verifyJwt,
   isVerified,

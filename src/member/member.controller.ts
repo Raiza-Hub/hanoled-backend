@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import AdminService from "@/admin/admin.service.js";
-import { Subject } from "@/db/schema.js";
 import { AppError } from "@/utils/appError.js";
 import {
   IClass,
@@ -8,12 +7,9 @@ import {
   IColumnValues,
   ISpreadsheetDetails,
   IStudent,
-  ISubjectSpreadsheet,
 } from "@/admin/dto/dto.js";
 import MemberService from "./member.service.js";
 import cloudinary from "@/fileUpload/cloudinary.js";
-import { success } from "zod";
-import { sql } from "drizzle-orm";
 import { getOrgClasandSubId } from "@/utils/getSubandClassId.js";
 
 export const getAllSubjects = async (
@@ -28,9 +24,9 @@ export const getAllSubjects = async (
       activeOrganization.id as string
     );
 
-    const subjects = organizationSubjects.map((s: Subject) => s.subjectName);
+    // const subjects = organizationSubjects.map((s: Subject) => s.subjectName);
 
-    res.status(200).json({ sucess: true, message: subjects });
+    res.status(200).json({ sucess: true, message: organizationSubjects });
   } catch (err) {
     next(err);
   }
