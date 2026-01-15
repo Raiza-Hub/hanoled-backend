@@ -19,6 +19,7 @@ import {
   getMemberSpreadSheet,
   getAllOragnizationSpreadSheet,
   removeParent,
+  archiveSpreadsheets,
 } from "./admin.controller.js";
 import { refreshAccessToken } from "@/middleware/refreshToken.js";
 import { verifyJwt } from "@/middleware/getUserSession.js";
@@ -176,6 +177,16 @@ router.delete(
   deleteAllPendingInvite
 );
 
+router.delete(
+  "/delete/pending/invite/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  isAdmin,
+  deleteSinglePendingInvite
+);
+
 router.get(
   "/get/organization/spreadsheet/:slug",
   refreshAccessToken,
@@ -195,5 +206,16 @@ router.get(
   isAdmin,
   getMemberSpreadSheet
 );
+
+router.get(
+  "/organization/archive/spreadsheet/:slug/:className/:subjectName",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  isAdmin,
+  archiveSpreadsheets
+);
+
 
 export default router;

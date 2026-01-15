@@ -535,6 +535,18 @@ export const deleteAllPendingInvite = async (
   }
 };
 
+export const deleteSinglePendingInvite = async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    const organization = req.organization
+    const {inviteId} = req.body
+
+    await AdminService.deleteInvite(inviteId)
+
+    res.status(200).json({ success: true, message: "The invite has successfully been deleted "})
+  } catch (err) {
+    next(err)
+  }
+}
 export const getMemberSpreadSheet = async (
   req: Request,
   res: Response,
@@ -590,6 +602,42 @@ export const getAllOragnizationSpreadSheet = async (
       status as "active" | "pending" | "inactive"
     );
     res.status(200).json({ success: true, data: spreadsheets });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const archiveSpreadsheets = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const organization = req.organization;
+    const memberId = req.member.id;
+    const { subjectName, className } = req.params;
+    const status = "active";
+
+    const { subjectId, classId } = await getOrgClasandSubId(
+      organization.id,
+      subjectName,
+      className
+    );
+
+    const newStatus = "inactive" as "active" | "pending" | "inactive";
+    const updateStatusData = {
+      status: newStatus,
+    };
+
+    const archiveSpreadsheets = await MemberService.updateSpreadsheetStatus(
+      memberId,
+      subjectId,
+      classId,
+      updateStatusData,
+      status as "active" | "pending" | "inactive"
+    );
+
+    res.status(200).json({ success: true, message: archiveSpreadsheets });
   } catch (err) {
     next(err);
   }

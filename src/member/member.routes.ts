@@ -15,6 +15,7 @@ import {
   updateFullSpreadsheet,
   // mergeSubjectSpreadsheets,
   updateStudent,
+  uploadSpreadsheet,
 } from "./member.controller.js";
 import { getSession } from "@/middleware/getMemberSession.js";
 import { refreshAccessToken } from "@/middleware/refreshToken.js";
@@ -140,6 +141,15 @@ router.get(
   isVerified,
   getSession,
   getAllMemberSpreadsheets
+);
+
+router.put(
+  "/spreadsheet/upload/:slug/:className/:subjectName",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  uploadSpreadsheet
 );
 
 export default router;

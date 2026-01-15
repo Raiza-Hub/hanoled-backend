@@ -428,40 +428,25 @@ class MemberService {
       )
       .orderBy(desc(spreadsheetDetails.updatedAt));
   }
-
-  // static async subjectSpreadsheetExists(
-  //   organizationId: string,
-  //   subjectId: string,
-  //   classId: string
-  // ) {
-  //   return await db.query.subjectSpreadsheet.findFirst({
-  //     where: and(
-  //       eq(subjectSpreadsheet.organizationId, organizationId),
-  //       eq(subjectSpreadsheet.subjectId, subjectId),
-  //       eq(subjectSpreadsheet.classId, classId)
-  //     ),
-  //   });
-  // }
-  // static async createSubjectSpreadsheet(data: ISubjectSpreadsheet) {
-  //   return await db.insert(subjectSpreadsheet).values(data).returning();
-  // }
-  // static async mergeSubjects(query: SQL<unknown>) {
-  //   return await db.execute(query);
-  // }
-  // static async selectedSubjectResults(
-  //   selectedColumn: any,
-  //   selectedSubjects: any
-  // ) {
-  //   return await db
-  //     .select({
-  //       studentId: results.studentId,
-  //       studentName: student.lastName,
-  //       subjectName: results.subjectName,
-  //       value: sql<number>`(data ->> ${selectedColumn})::int`,
-  //     })
-  //     .from(results)
-  //     .where(inArray(results.subjectName, selectedSubjects));
-  // }
+  static async updateSpreadsheetStatus(
+    memberId: string,
+    subjectId: string,
+    classId: string,
+    updateData: { status: "active" | "pending" | "inactive" },
+    oldStatus: "active" | "pending" | "inactive"
+  ) {
+    return await db
+      .update(spreadsheetDetails)
+      .set(updateData)
+      .where(
+        and(
+          eq(spreadsheetDetails.memberId, memberId),
+          eq(spreadsheetDetails.classId, classId),
+          eq(spreadsheetDetails.subjectId, subjectId),
+          eq(spreadsheetDetails.status, oldStatus)
+        )
+      );
+  }
 }
 
 export default MemberService;

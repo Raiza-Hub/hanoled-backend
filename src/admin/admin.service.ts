@@ -129,6 +129,9 @@ class AdminService {
       .set({ status: data })
       .where(and(eq(invitation.email, email), eq(invitation.role, role)));
   }
+  static async deleteInvite(inviteId: string) {
+    return await db.delete(invitation).where(eq(invitation.id, inviteId))
+  }
   static async findInvite(email: string, role: "member" | "parent" | "admin") {
     return await db.query.invitation.findFirst({
       where: and(eq(invitation.email, email), eq(invitation.role, role)),

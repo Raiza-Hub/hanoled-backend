@@ -552,3 +552,39 @@ export const getStudentById = async (
     next(err);
   }
 };
+
+export const uploadSpreadsheet = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const organization = req.organization;
+    const memberId = req.member.id;
+    const { subjectName, className } = req.params;
+    const status = "pending";
+
+    const { subjectId, classId } = await getOrgClasandSubId(
+      organization.id,
+      subjectName,
+      className
+    );
+
+    const newStatus = "active" as "active" | "pending" | "inactive";
+    const updateStatusData = {
+      status: newStatus,
+    };
+
+    const uploadSpredsheet = await MemberService.updateSpreadsheetStatus(
+      memberId,
+      subjectId,
+      classId,
+      updateStatusData,
+      status as "active" | "pending" | "inactive"
+    );
+
+    res.status(200).json({ success: true, message: uploadSpredsheet });
+  } catch (err) {
+    next(err);
+  }
+};
