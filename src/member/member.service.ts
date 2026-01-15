@@ -416,6 +416,7 @@ class MemberService {
         subjectId: spreadsheetDetails.subjectId,
         classId: spreadsheetDetails.classId,
         columnNames: spreadsheetDetails.columnNames,
+        status: spreadsheetDetails.status,
         createdAt: spreadsheetDetails.createdAt,
         updatedAt: spreadsheetDetails.updatedAt,
       })
