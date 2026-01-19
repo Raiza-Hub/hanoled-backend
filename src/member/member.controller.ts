@@ -539,7 +539,7 @@ export const getStudentById = async (
   next: NextFunction
 ) => {
   try {
-    const { studentId } = req.body;
+    const { studentId } = req.params;
 
     const student = await MemberService.getStudentById(studentId);
 
@@ -584,6 +584,56 @@ export const uploadSpreadsheet = async (
     );
 
     res.status(200).json({ success: true, message: uploadSpredsheet });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getRawSpreadsheetWithDetails = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const organization = req.organization;
+    const memberId = req.member.id;
+    const { subjectName, className } = req.params;
+    const status = "pending";
+
+    const { subjectId, classId } = await getOrgClasandSubId(
+      organization.id,
+      subjectName,
+      className
+    );
+
+    const targetDetails = await MemberService.getRawSpreadSheetDetails(
+      memberId,
+      subjectId,
+      classId,
+      status as "active" | "pending" | "inactive"
+    );
+
+    res.status(200).json({ success: true, message: targetDetails });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getRawSpreadSheetById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const organization = req.organization;
+    //give me the id's in an array similar to the way u sent selections
+    const { targetDetailsIds } = req.body;
+
+    const spreadsheets = targetDetailsIds.map(async (id: string) => {
+      return await MemberService.getSpreadsheetById(id);
+    });
+
+    res.status(200).json({ success: true, message: spreadsheets });
   } catch (err) {
     next(err);
   }

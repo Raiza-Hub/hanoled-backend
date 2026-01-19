@@ -20,6 +20,7 @@ import {
   getAllOragnizationSpreadSheet,
   removeParent,
   archiveSpreadsheets,
+  deleteSinglePendingInvite,
 } from "./admin.controller.js";
 import { refreshAccessToken } from "@/middleware/refreshToken.js";
 import { verifyJwt } from "@/middleware/getUserSession.js";

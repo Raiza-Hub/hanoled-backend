@@ -8,6 +8,8 @@ import {
   getAllParents,
   getAllSubjects,
   getAssignedClass,
+  getRawSpreadSheetById,
+  getRawSpreadsheetWithDetails,
   getSpreadSheet,
   getStudentById,
   mergeSpreadSheets,
@@ -81,7 +83,7 @@ router.patch(
 );
 
 router.get(
-  "/student/:slug",
+  "/student/:slug/:studentId",
   refreshAccessToken,
   verifyJwt,
   isVerified,
@@ -150,6 +152,24 @@ router.put(
   isVerified,
   getSession,
   uploadSpreadsheet
+);
+
+router.get(
+  "/spreadsheet/getById/:slug",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  getRawSpreadSheetById
+);
+
+router.get(
+  "/spreadsheet/getRaw/:slug/:className/:subjectName",
+  refreshAccessToken,
+  verifyJwt,
+  isVerified,
+  getSession,
+  getRawSpreadsheetWithDetails
 );
 
 export default router;

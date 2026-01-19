@@ -120,6 +120,11 @@ class MemberService {
       .values(valuesToInsert)
       .returning();
   }
+  static async getSpreadsheetById(spreadsheetId: string) {
+    return await db.query.spreadsheetDetails.findFirst({
+      where: eq(spreadsheetDetails.id, spreadsheetId),
+    });
+  }
   static async getSpreadsheetForHandsontable(
     memberId: string,
     subjectId: string,
