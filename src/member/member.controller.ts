@@ -627,11 +627,19 @@ export const getRawSpreadSheetById = async (
   try {
     const organization = req.organization;
     //give me the id's in an array similar to the way u sent selections
-    const { targetDetailsIds } = req.body;
+    const { ids } = req.query;
+    const normalizedIds = Array.isArray(ids)
+      ? ids
+      : typeof ids === "string"
+      ? [ids]
+      : [];
 
-    const spreadsheets = targetDetailsIds.map(async (id: string) => {
-      return await MemberService.getSpreadsheetById(id);
+    const spreadsheetPromises = normalizedIds.map(async (id: string) => {
+      const spreadsheet = await MemberService.getSpreadsheetById(id);
+      return spreadsheet;
     });
+
+    const spreadsheets = await Promise.all(spreadsheetPromises);
 
     res.status(200).json({ success: true, message: spreadsheets });
   } catch (err) {
