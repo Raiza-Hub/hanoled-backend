@@ -199,7 +199,7 @@ router.get(
 );
 
 router.get(
-  "/get/organization/spreadsheet/member/:slug",
+  "/get/organization/spreadsheet/member/:slug/:title",
   refreshAccessToken,
   verifyJwt,
   isVerified,
@@ -209,7 +209,7 @@ router.get(
 );
 
 router.get(
-  "/organization/archive/spreadsheet/:slug/:className/:subjectName",
+  "/organization/archive/spreadsheet/:slug/:className/:subjectName/:title",
   refreshAccessToken,
   verifyJwt,
   isVerified,

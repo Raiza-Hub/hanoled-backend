@@ -443,7 +443,8 @@ class MemberService {
     subjectId: string,
     classId: string,
     updateData: { status: "active" | "pending" | "inactive" },
-    oldStatus: "active" | "pending" | "inactive"
+    oldStatus: "active" | "pending" | "inactive",
+    title: string
   ) {
     return await db
       .update(spreadsheetDetails)
@@ -453,7 +454,8 @@ class MemberService {
           eq(spreadsheetDetails.memberId, memberId),
           eq(spreadsheetDetails.classId, classId),
           eq(spreadsheetDetails.subjectId, subjectId),
-          eq(spreadsheetDetails.status, oldStatus)
+          eq(spreadsheetDetails.status, oldStatus),
+          eq(spreadsheetDetails.title, title)
         )
       );
   }

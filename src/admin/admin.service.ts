@@ -129,7 +129,7 @@ class AdminService {
       .set({ status: data })
       .where(and(eq(invitation.email, email), eq(invitation.role, role)));
   }
-  static async deleteInvite(inviteId: string) {
+  static async deleteInviteById(inviteId: string) {
     return await db.delete(invitation).where(eq(invitation.id, inviteId))
   }
   static async findInvite(email: string, role: "member" | "parent" | "admin") {
@@ -279,14 +279,16 @@ class AdminService {
     memberId: string,
     subjectId: string,
     classId: string,
-    status: "active" | "pending" | "inactive"
+    status: "active" | "pending" | "inactive",
+    title: string
   ) {
     return await db.query.spreadsheetDetails.findFirst({
       where: and(
         eq(spreadsheetDetails.memberId, memberId),
         eq(spreadsheetDetails.subjectId, subjectId),
         eq(spreadsheetDetails.classId, classId),
-        eq(spreadsheetDetails.status, status)
+        eq(spreadsheetDetails.status, status),
+        eq(spreadsheetDetails.title, title)
       ),
     });
   }

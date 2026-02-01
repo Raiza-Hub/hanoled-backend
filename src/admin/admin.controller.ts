@@ -540,7 +540,7 @@ export const deleteSinglePendingInvite = async(req: Request, res: Response, next
     const organization = req.organization
     const {inviteId} = req.body
 
-    await AdminService.deleteInvite(inviteId)
+    await AdminService.deleteInviteById(inviteId)
 
     res.status(200).json({ success: true, message: "The invite has successfully been deleted "})
   } catch (err) {
@@ -555,8 +555,12 @@ export const getMemberSpreadSheet = async (
   try {
     const organizationId = req.organization.id;
     const { memberId } = req.body;
-    const { subjectName, className } = req.params;
+    const { subjectName, className, title } = req.params;
     const status = "active";
+
+    if(!title) {
+      return next( new AppError("There is no title stated in the parameter", 400))
+    }
 
     const { subjectId, classId } = await getOrgClasandSubId(
       organizationId,
@@ -568,7 +572,8 @@ export const getMemberSpreadSheet = async (
       memberId as string,
       subjectId,
       classId,
-      status as "active" | "pending" | "inactive"
+      status as "active" | "pending" | "inactive",
+      title
     );
 
     if (!spreadsheetDetails) {
@@ -579,7 +584,8 @@ export const getMemberSpreadSheet = async (
       memberId as string,
       subjectId,
       classId,
-      status as "active" | "pending" | "inactive"
+      status as "active" | "pending" | "inactive",
+      title
     );
 
     res.status(200).json({ success: true, data: spreadsheet });
@@ -615,11 +621,15 @@ export const archiveSpreadsheets = async (
   try {
     const organization = req.organization;
     const memberId = req.member.id;
-    const { subjectName, className } = req.params;
+    const { subjectName, className, title } = req.params;
     const status = "active";
 
+    if(!title) {
+      return next( new AppError("There is no title stated in the parameter", 400))
+    }
+
     const { subjectId, classId } = await getOrgClasandSubId(
-      organization.id,
+      organization.id,  
       subjectName,
       className
     );
@@ -634,7 +644,8 @@ export const archiveSpreadsheets = async (
       subjectId,
       classId,
       updateStatusData,
-      status as "active" | "pending" | "inactive"
+      status as "active" | "pending" | "inactive",
+      title
     );
 
     res.status(200).json({ success: true, message: archiveSpreadsheets });

@@ -272,6 +272,10 @@ export const createSpreadsheet = async (
     const { title, rows, className, subjectName } = req.body;
     const status = "pending";
 
+    if(!title) {
+      return next( new AppError("There is no title stated in the parameter", 400))
+    }
+
     const { subjectId, classId } = await getOrgClasandSubId(
       organization.id,
       subjectName,
@@ -282,7 +286,8 @@ export const createSpreadsheet = async (
       member.id,
       subjectId,
       classId,
-      status as "active" | "pending" | "inactive"
+      status as "active" | "pending" | "inactive",
+      title
     );
 
     if (spreadsheetExists) {
@@ -394,6 +399,10 @@ export const updateFullSpreadsheet = async (
     const { title, rows } = req.body;
     const status = "pending";
 
+    if(!title) {
+      return next( new AppError("There is no title stated in the parameter", 400))
+    }
+
     const { subjectId, classId } = await getOrgClasandSubId(
       organizationId,
       subjectName,
@@ -403,8 +412,9 @@ export const updateFullSpreadsheet = async (
       memberId,
       subjectId,
       classId,
-      status as "active" | "pending" | "inactive"
-    );
+      status as "active" | "pending" | "inactive",
+      title,
+    )
 
     if (!spreadsheetExists) {
       return next(new AppError("This spreadsheet does not exist", 400));
@@ -435,6 +445,10 @@ export const mergeSpreadSheets = async (
     const { subjectName, className, title, selections } = req.body;
     const status = "pending";
 
+    if(!title) {
+      return next( new AppError("There is no title stated in the parameter", 400))
+    }
+
     const { subjectId, classId } = await getOrgClasandSubId(
       organizationId,
       subjectName,
@@ -445,7 +459,8 @@ export const mergeSpreadSheets = async (
       memberId,
       subjectId,
       classId,
-      status as "active" | "pending" | "inactive"
+      status as "active" | "pending" | "inactive",
+      title
     );
 
     if (!spreadsheetExists) {
@@ -480,9 +495,13 @@ export const updateByMerging = async (
   try {
     const organizationId = req.organization.id;
     const memberId = req.member.id;
-    const { subjectName, className } = req.params;
+    const { subjectName, className, title } = req.params;
     const { selections } = req.body;
     const status = "pending";
+
+    if(!title) {
+      return next( new AppError("There is no title stated in the parameter", 400))
+    }
 
     const { subjectId, classId } = await getOrgClasandSubId(
       organizationId,
@@ -494,7 +513,8 @@ export const updateByMerging = async (
       memberId,
       subjectId,
       classId,
-      status as "active" | "pending" | "inactive"
+      status as "active" | "pending" | "inactive",
+      title
     );
 
     if (!targetDetails) {
@@ -566,8 +586,12 @@ export const uploadSpreadsheet = async (
   try {
     const organization = req.organization;
     const memberId = req.member.id;
-    const { subjectName, className } = req.params;
+    const { subjectName, className, title } = req.params;
     const status = "pending";
+
+    if(!title) {
+      return next( new AppError("There is no title stated in the parameter", 400))
+    }
 
     const { subjectId, classId } = await getOrgClasandSubId(
       organization.id,
@@ -585,7 +609,8 @@ export const uploadSpreadsheet = async (
       subjectId,
       classId,
       updateStatusData,
-      status as "active" | "pending" | "inactive"
+      status as "active" | "pending" | "inactive",
+      title
     );
 
     res.status(200).json({ success: true, message: uploadSpredsheet });

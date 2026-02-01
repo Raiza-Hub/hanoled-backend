@@ -164,7 +164,7 @@ router.get(
 );
 
 router.get(
-  "/spreadsheet/getRaw/:slug/:className/:subjectName",
+  "/spreadsheet/getRaw/:slug/:className/:subjectName/:title",
   refreshAccessToken,
   verifyJwt,
   isVerified,
