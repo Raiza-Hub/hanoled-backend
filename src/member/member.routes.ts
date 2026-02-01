@@ -101,7 +101,7 @@ router.post(
 );
 
 router.get(
-  "/spreadsheet/subject/get/:slug/:className/:subjectName",
+  "/spreadsheet/subject/get/:slug/:className/:subjectName/:title",
   refreshAccessToken,
   verifyJwt,
   isVerified,

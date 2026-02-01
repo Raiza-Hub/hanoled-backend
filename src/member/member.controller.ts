@@ -355,8 +355,12 @@ export const getSpreadSheet = async (
   try {
     const organizationId = req.organization.id;
     const memberId = req.member.id;
-    const { subjectName, className } = req.params;
+    const { subjectName, className, title } = req.params;
     const status = "pending";
+
+    if(!title) {
+      return next( new AppError("There is no title stated in the parameter", 400))
+    }
 
     const { subjectId, classId } = await getOrgClasandSubId(
       organizationId,
@@ -368,7 +372,8 @@ export const getSpreadSheet = async (
       memberId as string,
       subjectId,
       classId,
-      status as "active" | "pending" | "inactive"
+      status as "active" | "pending" | "inactive",
+      title
     );
 
     res.status(200).json({ success: true, data: spreadsheet });
@@ -597,8 +602,12 @@ export const getRawSpreadsheetWithDetails = async (
   try {
     const organization = req.organization;
     const memberId = req.member.id;
-    const { subjectName, className } = req.params;
+    const { subjectName, className, title } = req.params;
     const status = "pending";
+
+    if(!title) {
+      return next( new AppError("There is no title stated in the parameter", 400))
+    }
 
     const { subjectId, classId } = await getOrgClasandSubId(
       organization.id,
@@ -610,7 +619,8 @@ export const getRawSpreadsheetWithDetails = async (
       memberId,
       subjectId,
       classId,
-      status as "active" | "pending" | "inactive"
+      status as "active" | "pending" | "inactive",
+      title
     );
 
     res.status(200).json({ success: true, message: targetDetails });

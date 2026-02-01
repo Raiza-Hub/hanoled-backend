@@ -129,7 +129,8 @@ class MemberService {
     memberId: string,
     subjectId: string,
     classId: string,
-    status: "active" | "pending" | "inactive"
+    status: "active" | "pending" | "inactive",
+    title: string
   ) {
     // 1. Fetch both the header details and the actual data
     const details = await db.query.spreadsheetDetails.findFirst({
@@ -137,7 +138,8 @@ class MemberService {
         eq(spreadsheetDetails.memberId, memberId),
         eq(spreadsheetDetails.subjectId, subjectId),
         eq(spreadsheetDetails.classId, classId),
-        eq(spreadsheetDetails.status, status)
+        eq(spreadsheetDetails.status, status),
+        eq(spreadsheetDetails.title, title)
       ),
     });
     if (!details) {
@@ -313,14 +315,16 @@ class MemberService {
     memberId: string,
     subjectId: string,
     classId: string,
-    status: "active" | "pending" | "inactive"
+    status: "active" | "pending" | "inactive",
+    title: string
   ) {
     return await db.query.spreadsheetDetails.findFirst({
       where: and(
         eq(spreadsheetDetails.memberId, memberId),
         eq(spreadsheetDetails.subjectId, subjectId),
         eq(spreadsheetDetails.classId, classId),
-        eq(spreadsheetDetails.status, status)
+        eq(spreadsheetDetails.status, status),
+        eq(spreadsheetDetails.title, title)
       ),
     });
   }
